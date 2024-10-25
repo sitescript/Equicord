@@ -98,7 +98,7 @@ async function generateDebugInfoMessage() {
         "NoRPC enabled": Vencord.Plugins.isPluginEnabled("NoRPC"),
         "Activity Sharing disabled": tryOrElse(() => !ShowCurrentGame.getSetting(), false),
         ":trollmark: :Dev: Equicord DB": !IS_STANDALONE,
-        " :trollmark: :User: Has UP'S": Object.values(PluginMeta).some(m => m.userPlugin),
+        ":trollmark: :User: Has UP'S": Object.values(PluginMeta).some(m => m.userPlugin),
         "More than two weeks out of date": BUILD_TIMESTAMP < Date.now() - 12096e5,
     };
 
