@@ -104,7 +104,7 @@ async function generateDebugInfoMessage() {
 
     let content = `>>> ${Object.entries(info).map(([k, v]) => `**${k}**: ${v}`).join("\n")}`;
     content += "\n" + Object.entries(commonIssues)
-        .filter(([, v]) => v).map(([k]) => ` ${k}`)
+        .filter(([, v]) => v).map(([k]) => `${k}`)
         .join("\n");
 
     return content.trim();
