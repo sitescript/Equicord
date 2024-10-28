@@ -57,7 +57,7 @@ export const Devs = /* #__PURE__*/ Object.freeze({
     },
     Crxa: {
         name: "Crxa",
-        id: 658592832596082688n
+        id: 920290194886914069n
     },
     Megu: {
         name: "Megumin",
