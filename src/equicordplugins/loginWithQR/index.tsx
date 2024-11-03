@@ -64,7 +64,7 @@ export default definePlugin({
         },
         // Insert a Scan QR Code MenuItem in the Swith Accounts popout
         {
-            find: ".SWITCH_ACCOUNTS_MANAGE_ACCOUNTS,",
+            find: "#{intl::SWITCH_ACCOUNTS_MANAGE_ACCOUNTS},",
             replacement: {
                 match: /(id:"manage-accounts",.*?)}\)\)(,\i)/,
                 replace: "$1}),$self.ScanQrMenuItem)$2"

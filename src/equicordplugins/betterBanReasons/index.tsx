@@ -72,9 +72,9 @@ export default definePlugin({
     authors: [Devs.Inbestigator],
     patches: [
         {
-            find: "Messages.BAN_MULTIPLE_CONFIRM_TITLE",
+            find: "#{intl::BAN_MULTIPLE_CONFIRM_TITLE}",
             replacement: [{
-                match: /\[\{name:\i\.\i\.Messages\.BAN_REASON_OPTION_SPAM_ACCOUNT.+?\}\]/,
+                match: /\[\{name:#{intl::BAN_REASON_OPTION_SPAM_ACCOUNT}.+?\}\]/,
                 replace: "$self.getReasons()"
             },
             {
