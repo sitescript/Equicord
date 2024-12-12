@@ -1,27 +1,9 @@
-/*
- * Vencord, a modification for Discord's desktop app
- * Copyright (c) 2024 Vendicated and contributors
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
-
 import "./styles.css";
 
 import ErrorBoundary from "@components/ErrorBoundary";
 import { EquicordDevs } from "@utils/constants";
 import definePlugin from "@utils/types";
-import { Clipboard, Toasts } from "@webpack/common";
+import { Clipboard, Toasts, React } from "@webpack/common";
 
 interface User {
     id: string;
@@ -41,16 +23,9 @@ interface ContactsList {
     since: string;
 }
 
-// for type parameter, it takes in a number that determines the type of the contact
-// 1 is friends added
-// 2 is blocked users
-// 3 is incoming friend requests
-// 4 is outgoing friend requests
 function getUsernames(contacts: ContactsList[], type: number): string[] {
     return contacts
-        // only select contacts that are the specified type
         .filter(e => e.type === type)
-        // return the username, and discriminator if necessary
         .map(e => e.user.discriminator === "0" ? e.user.username : e.user.username + "#" + e.user.discriminator);
 }
 
@@ -58,6 +33,7 @@ export default definePlugin({
     name: "ExportContacts",
     description: "Export a list of friends to your clipboard. Adds a new button to the menu bar for the friends tab.",
     authors: [EquicordDevs.dat_insanity],
+    
     patches: [
         {
             find: "fetchRelationships(){",
@@ -67,56 +43,91 @@ export default definePlugin({
             }
         },
         {
-            find: "[role=\"tab\"][aria-disabled=\"false\"]",
-            replacement: [
-                {
-                    match: /this\.props;(return\(.*?"aria-label":(\i))/,
-                    replace: "this.props;console.log($2?.Children);$1"
-                },
-                {
-                    match: /("aria-label":(\i),children:)(\w+)\.Children\.map\((\w+),\s*this\.renderChildren\)/,
-                    replace:
-                        "$1($3 && $3.Children ?" +
-                        "($2 === 'Friends' ?" +
-                        "[...$3.Children.map($4, this.renderChildren), $self.addExportButton()]" +
-                        ": [...$3.Children.map($4, this.renderChildren)]) : $3.map($4, this.renderChildren))"
+            find: "renderFriendsSection",
+            replacement: {
+                match: /function\((\w+)\){.*?return\s*(\w+)\.createElement/s,
+                replace: function(_, props, createElement) {
+                    return `function(${props}){
+                        const originalResult = ${createElement}.createElement(
+                            ${props}.type, 
+                            ${props}.props, 
+                            ${props}.children
+                        );
+                        
+                        // Check if this is the friends section
+                        if (${props}.props?.['aria-label'] === 'Friends') {
+                            // Clone the original children
+                            const children = React.Children.toArray(originalResult.props.children);
+                            
+                            // Add our export button at the end
+                            children.push($self.addExportButton());
+                            
+                            // Recreate the element with modified children
+                            return ${createElement}.createElement(
+                                originalResult.type, 
+                                originalResult.props, 
+                                children
+                            );
+                        }
+                        
+                        return originalResult;
+                    }`;
                 }
-            ]
+            }
         }
     ],
 
+    contactList: null as any,
+
     getContacts(contacts: ContactsList[]) {
         this.contactList = {
-            friendsAdded: [...getUsernames(contacts, 1)],
-            blockedUsers: [...getUsernames(contacts, 2)],
-            incomingFriendRequests: [...getUsernames(contacts, 3)],
-            outgoingFriendRequests: [...getUsernames(contacts, 4)]
+            friendsAdded: getUsernames(contacts, 1),
+            blockedUsers: getUsernames(contacts, 2),
+            incomingFriendRequests: getUsernames(contacts, 3),
+            outgoingFriendRequests: getUsernames(contacts, 4)
         };
     },
 
     addExportButton() {
-        return <ErrorBoundary noop key=".2">
-            <button className="export-contacts-button" onClick={() => { this.copyContactToClipboard(); console.log("clicked"); }}>Export</button>
-        </ErrorBoundary>;
+        return (
+            <ErrorBoundary noop key="export-contacts-button">
+                <button 
+                    className="export-contacts-button" 
+                    onClick={() => this.copyContactToClipboard()}
+                >
+                    Export Contacts
+                </button>
+            </ErrorBoundary>
+        );
     },
 
     copyContactToClipboard() {
         if (this.contactList) {
-            Clipboard.copy(JSON.stringify(this.contactList));
-            Toasts.show({
-                message: "Contacts copied to clipboard successfully.",
-                type: Toasts.Type.SUCCESS,
-                id: Toasts.genId(),
-                options: {
-                    duration: 3000,
-                    position: Toasts.Position.BOTTOM
-                }
-            });
+            try {
+                Clipboard.copy(JSON.stringify(this.contactList, null, 2));
+                Toasts.show({
+                    message: "Contacts copied to clipboard successfully.",
+                    type: Toasts.Type.SUCCESS,
+                    id: Toasts.genId(),
+                    options: {
+                        duration: 3000,
+                        position: Toasts.Position.BOTTOM
+                    }
+                });
+            } catch (error) {
+                Toasts.show({
+                    message: "Failed to copy contacts.",
+                    type: Toasts.Type.FAILURE,
+                    id: Toasts.genId(),
+                    options: {
+                        duration: 3000,
+                        position: Toasts.Position.BOTTOM
+                    }
+                });
+            }
             return;
         }
-        // reason why you need to click the all tab is because the data is extracted during
-        // the request itself when you fetch all your friends. this is done to avoid sending a
-        // manual request to discord, which may raise suspicion and might even get you terminated.
+
         Toasts.show({
             message: "Contact list is undefined. Click on the \"All\" tab before exporting.",
             type: Toasts.Type.FAILURE,
