@@ -83,7 +83,7 @@ async function generateDebugInfoMessage() {
     })();
 
     const info = {
-        Equicord:
+        Suncord:
             `v${VERSION} • [${gitHash}](<https://github.com/Equicord/Equicord/commit/${gitHash}>)` +
             `${SettingsPlugin.additionalInfo} - ${Intl.DateTimeFormat("en-GB", { dateStyle: "medium" }).format(BUILD_TIMESTAMP)}`,
         Client: `${RELEASE_CHANNEL} ~ ${client}`,
@@ -97,8 +97,8 @@ async function generateDebugInfoMessage() {
     const commonIssues = {
         "NoRPC enabled": Vencord.Plugins.isPluginEnabled("NoRPC"),
         "Activity Sharing disabled": tryOrElse(() => !ShowCurrentGame.getSetting(), false),
-        ":trollmark: :Dev: Equicord DB": !IS_STANDALONE,
-        ":trollmark: :User: Has UP'S": Object.values(PluginMeta).some(m => m.userPlugin),
+        ":suncord: Suncord Dev Build": !IS_STANDALONE,
+        ":electric_plug: Has Userplugins": Object.values(PluginMeta).some(m => m.userPlugin),
         "More than two weeks out of date": BUILD_TIMESTAMP < Date.now() - 12096e5,
     };
 
