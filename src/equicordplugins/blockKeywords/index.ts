@@ -50,18 +50,14 @@ export default definePlugin({
                 replace: "$&$1=$self.blockMessagesWithKeywords($1);"
             }
         },
-        ...[
-            '"ReadStateStore"'
-        ].map(find => ({
-            find,
-            predicate: () => Settings.plugins.BlockKeywords.ignoreBlockedMessages && !Settings.plugins.NoBlockedMessages.ignoreBlockedMessages,
-            replacement: [
-                {
-                    match: /(?<=function (\i)\((\i)\){)(?=.*MESSAGE_CREATE:\1)/,
-                    replace: (_, props) => `if($self.containsBlockedKeywords(${props}.message))return;`
-                }
-            ]
-        })),
+        {
+            find: '"ReadStateStore"',
+            predicate: () => Settings.plugins.BlockKeywords.ignoreBlockedMessages,
+            replacement: {
+                match: /(?<=MESSAGE_CREATE:function\((\i)\){)/,
+                replace: (_, props) => `if($self.containsBlockedKeywords(${props}.message))return;`
+            }
+        }
     ],
 
     settings,
