@@ -59,6 +59,10 @@ export default definePlugin({
                 {
                     match: /(?<=function (\i)\((\i)\){)(?=.*MESSAGE_CREATE:\1)/,
                     replace: (_, props) => `if($self.containsBlockedKeywords(${props}.message))return;`
+                },
+                {
+                    match: /(?<=MESSAGE_CREATE:function\((\i)\){)/,
+                    replace: (_, props) => `if($self.containsBlockedKeywords(${props}.message))return;`
                 }
             ]
         })),
