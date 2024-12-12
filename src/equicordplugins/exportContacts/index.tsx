@@ -70,14 +70,14 @@ export default definePlugin({
             find: "[role=\"tab\"][aria-disabled=\"false\"]",
             replacement: {
                 match: /this\.props;return\(/,
-                replace: "this.props;console.log(a.Children);return("
+                replace: "this.props;return("
             }
         },
         {
             find: "[role=\"tab\"][aria-disabled=\"false\"]",
             replacement: {
                 match: /(\w+)\.Children\.map\((\w+),\s*this\.renderChildren\)/,
-                replace: "[...$1.Children.map($2,this.renderChildren),$self.addExportButton()]"
+                replace: "($1 && $1.Children ? [...$1.Children.map($2,this.renderChildren), $self.addExportButton()] : $1.map($2,this.renderChildren))"
             }
         }
     ],
@@ -92,9 +92,19 @@ export default definePlugin({
     },
 
     addExportButton() {
-        return <ErrorBoundary noop key=".2">
-            <button className="export-contacts-button" onClick={() => { this.copyContactToClipboard(); console.log("clicked"); }}>Export</button>
-        </ErrorBoundary>;
+        return (
+        <ErrorBoundary noop key=".2">
+            <button
+             className="export-contacts-button"
+             onClick={() => {
+                 this.copyContactToClipboard();
+                  console.log("clicked");
+                  }}
+                  >
+                    Export
+                    </button>
+        </ErrorBoundary>
+        );
     },
 
     copyContactToClipboard() {
