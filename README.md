@@ -25,6 +25,7 @@ You can join our [discord server](https://discord.gg/5Xh2W87egW) for commits, ch
 - BetterInvites by iamme
 - BetterQuickReact by Ven & Sqaaakoi
 - BetterUserArea by Samwich
+- BetterPlusReacts by Joona
 - BlockKeywords by catcraft
 - BlockKrsip by D3SOX
 - BypassStatus by Inbestigator & thororen
@@ -43,6 +44,7 @@ You can join our [discord server](https://discord.gg/5Xh2W87egW) for commits, ch
 - DecodeBase64 by ThePirateStoner
 - DeadMembers by Kyuuhachi
 - Demonstration by Samwich
+- DisableAnimations by S€th
 - DisableCameras by Joona
 - DoNotLeak by Perny
 - DontFilterMe by Samwich
@@ -65,7 +67,7 @@ You can join our [discord server](https://discord.gg/5Xh2W87egW) for commits, ch
 - GodMode by Tolgchu
 - GoodPerson by nin0dev & mantikafasi
 - GoogleThat by Samwich
-- GrammarFix by unstream
+- GrammarFix by S€th
 - HideChatButtons by iamme
 - HideMessage by Hanzy
 - HideServers by bepvte
@@ -95,7 +97,6 @@ You can join our [discord server](https://discord.gg/5Xh2W87egW) for commits, ch
 - MessageTranslate by Samwich
 - ModalFade by Kyuuhachi
 - MoreStickers by Leko & Arjix
-- MoreThemes by Kyuuhachi
 - NewPluginsManager by Sqaaakoi
 - NoAppsAllowed by kvba
 - NoBulletPoints by Samwich
@@ -189,6 +190,7 @@ Linux
 ```shell
 sh -c "$(curl -sS https://raw.githubusercontent.com/Equicord/Equicord/refs/heads/main/misc/install.sh)"
 ```
+
 ## Installing Equicord Devbuild
 
 ### Dependencies
