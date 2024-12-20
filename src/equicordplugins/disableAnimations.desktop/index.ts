@@ -25,7 +25,7 @@ export default definePlugin({
     description: "Disables most of Discord's animations.",
     authors: [EquicordDevs.seth],
     start() {
-        this.springs = findAll((mod) => {
+        this.springs = findAll(mod => {
             if (!mod.Globals) return false;
             return true;
         });
