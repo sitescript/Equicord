@@ -599,10 +599,6 @@ export const EquicordDevs = Object.freeze({
         name: "thororen",
         id: 848339671629299742n
     },
-    Crxa: {
-        name: "Crxa",
-        id: 658592832596082688n
-    },
     nyx: {
         name: "verticalsync",
         id: 1207087393929171095n
@@ -967,6 +963,10 @@ export const EquicordDevs = Object.freeze({
     Loukios: {
         name: "Loukios",
         id: 211461918127292416n
+    },
+    Crxa: {
+        name: "Crxa",
+        id: 920290194886914069n
     },
     vappstar: {
         name: "vappstar",
