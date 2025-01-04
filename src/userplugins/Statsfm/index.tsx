@@ -17,8 +17,7 @@
 */
 
 import { definePluginSettings } from "@api/Settings";
-import { Link } from "@components/Link";
-import { Devs } from "@utils/constants";
+import { Devs, EquicordDevs } from "@utils/constants";
 import { Logger } from "@utils/Logger";
 import definePlugin, { OptionType } from "@utils/types";
 import { findByPropsLazy } from "@webpack";
@@ -80,6 +79,53 @@ const enum NameFormat {
     SongOnly = "song",
     albumsName = "albums"
 }
+
+
+
+interface Albums {
+    id: number;
+    image: string;
+    name: string;
+}
+
+interface Artists {
+    id: number;
+    name: string;
+    image: string;
+}
+
+interface ExternalIds {
+    spotify: string[];
+    appleMusic: string[];
+}
+
+interface Track {
+    albums: Albums[];
+    artists: Artists[];
+    durationMs: number;
+    explicit: boolean;
+    externalIds: ExternalIds;
+    id: number;
+    name: string;
+    spotifyPopularity: number;
+    spotifyPreview: string;
+    appleMusicPreview: string;
+}
+
+interface Item {
+    date: string;
+    isPlaying: boolean;
+    progressMs: number;
+    deviceName: string;
+    track: Track;
+    platform: string;
+}
+
+interface SFMR {
+    item: Item;
+}
+
+
 
 const applicationId = "1325126169179197500";
 const placeholderId = "2a96cbd8b46e442fc41c2b86b821562f";
@@ -186,7 +232,7 @@ const settings = definePluginSettings({
 export default definePlugin({
     name: "StatsfmPresence",
     description: "Statsfm presence to track your music",
-    authors: [Devs.Crxa],
+    authors: [Devs.Crxa, EquicordDevs.vmohammad],
 
     settingsAboutComponent: () => (
         <>
@@ -213,31 +259,23 @@ export default definePlugin({
             return null;
 
         try {
-            const params = new URLSearchParams({
-               // method: "user.getitem",
-                user: settings.store.username,
-            });
-
-            const res = await fetch(`https://api.stats.fm/api/v1/users/${params}/streams/current`);
+            const res = await fetch(`https://api.stats.fm/api/v1/users/${settings.store.username}/streams/current`);
             if (!res.ok) throw `${res.status} ${res.statusText}`;
 
-            const json = await res.json();
-            if (json.error) {
-                logger.error("Error from Stats.fm API", `${json.error}: ${json.message}`);
+            const json = await res.json() as SFMR;
+            if (!json.item) {
+                logger.error("Error from Stats.fm API", json);
                 return null;
             }
 
-            const trackData = json.recenttracks?.track[0];
-
-            if (!trackData?.["item"]?.isPlaying) // item is legit what its root is in api :sob:
-                return null;
-
+            const trackData = json.item.track;
+            if (!trackData) return null;
             return {
                 name: trackData.name || "Unknown",
-                albums: trackData.albums["name"] || "Unknown",
-                artists: trackData.artists["name"] || "Unknown",
-                url: trackData.url, // https://stats.fm/track/665906 / https://twirl.cx/dj2gL.png reminder of what the id looks like to fetch track
-                imageUrl: trackData.image?.find((x: any) => x["image"])?.["image"]
+                albums: trackData.albums.map(a => a.name).join(", ") ?? "Unknown",
+                artists: trackData.artists[0].name ?? "Unknown",
+                url: `https://stats.fm/track/${trackData.id}`, // https://stats.fm/track/665906 / https://twirl.cx/dj2gL.png reminder of what the id looks like to fetch track
+                imageUrl: trackData.albums[0].image
             };
         } catch (e) {
             logger.error("Failed to query Stats.fm API", e);
@@ -276,11 +314,11 @@ export default definePlugin({
                 large_image: await getApplicationAsset(largeImage),
                 large_text: trackData.albums || undefined,
                 ...(settings.store.showStatsFmLogo && {
-                    small_image: await getApplicationAsset("StatsFm-small"),
+                    small_image: await getApplicationAsset("statsfm-large"),
                     small_text: "Stats.fm"
                 }),
             } : {
-                large_image: await getApplicationAsset("StatsFm-large"),
+                large_image: await getApplicationAsset("statsfm-large"),
                 large_text: trackData.albums || undefined,
             };
 
