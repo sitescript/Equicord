@@ -17,7 +17,7 @@
 */
 
 import { definePluginSettings } from "@api/Settings";
-import { Devs, EquicordDevs } from "@utils/constants";
+import { Devs } from "@utils/constants";
 import { Logger } from "@utils/Logger";
 import definePlugin, { OptionType } from "@utils/types";
 import { findByPropsLazy } from "@webpack";
@@ -232,7 +232,7 @@ const settings = definePluginSettings({
 export default definePlugin({
     name: "StatsfmPresence",
     description: "Statsfm presence to track your music",
-    authors: [Devs.Crxa, EquicordDevs.vmohammad],
+    authors: [Devs.Crxa, Devs.vmohammad],
 
     settingsAboutComponent: () => (
         <>
@@ -259,8 +259,10 @@ export default definePlugin({
             return null;
 
         try {
+
             const res = await fetch(`https://api.stats.fm/api/v1/users/${settings.store.username}/streams/current`);
             if (!res.ok) throw `${res.status} ${res.statusText}`;
+
 
             const json = await res.json() as SFMR;
             if (!json.item) {
