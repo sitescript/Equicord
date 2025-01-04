@@ -186,7 +186,7 @@ const settings = definePluginSettings({
 export default definePlugin({
     name: "StatsfmPresence",
     description: "Statsfm presence to track your music",
-    authors: [Devs.Crxa],
+    authors: [Devs.Crxa, Devs.vmohammad],
 
     settingsAboutComponent: () => (
         <>
@@ -213,13 +213,11 @@ export default definePlugin({
             return null;
 
         try {
-            const params = new URLSearchParams({
-               // method: "user.getitem",
-                user: settings.store.username,
-            });
 
-            const res = await fetch(`https://api.stats.fm/api/v1/users/${params}/streams/current`);
+
+            const res = await fetch(`https://api.stats.fm/api/v1/users/${settings.store.username}/streams/current`);
             if (!res.ok) throw `${res.status} ${res.statusText}`;
+
 
             const json = await res.json();
             if (json.error) {
@@ -227,10 +225,13 @@ export default definePlugin({
                 return null;
             }
 
+
             const trackData = json.recenttracks?.track[0];
+
 
             if (!trackData?.["item"]?.isPlaying) // item is legit what its root is in api :sob:
                 return null;
+
 
             return {
                 name: trackData.name || "Unknown",
