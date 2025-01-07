@@ -44,7 +44,7 @@ export default definePlugin({
         {
             find: ".DELETE,onClick(){let",
             replacement: {
-                match: /let \i=(\i).toString\((\d+)\)/,
+                match: /let \i=(\i).toString\(\)/,
                 replace: "$self.HandleGuildDeleteModal($1);return;$&"
             }
         }
