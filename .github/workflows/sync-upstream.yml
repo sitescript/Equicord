@@ -22,7 +22,7 @@ jobs:
 
     - name: Add Upstream Repository
       run: |
-        git remote add upstream https://github.com/original-owner/original-repo.git
+        git remote add upstream https://github.com/Equicord/Equicord.git
         git fetch upstream
         git checkout main
         git merge upstream/main
