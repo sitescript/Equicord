@@ -1,20 +1,42 @@
-name: PR Auto Update Workflow
+name: Sync Upstream to Fork
 
 on:
-  pull_request:
-    types: [opened, synchronize, reopened]
+  schedule:
+    - cron: '0 2 * * *' # Runs every day at 2 AM UTC
+  workflow_dispatch: 
 
 jobs:
-  auto-update:
+  sync:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout the repository
-      - name: Checkout Code
-        uses: actions/checkout@v3
+    - name: Checkout Fork Repository
+      uses: actions/checkout@v3
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
 
-      # PR Auto Update action
-      - name: PR Auto Update
-        uses: RomuloLim/auto-pr-action@v1.0.0-beta
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Set Up Git Config
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+
+    - name: Add Upstream Repository
+      run: |
+        git remote add upstream https://github.com/original-owner/original-repo.git
+        git fetch upstream
+        git checkout main
+        git merge upstream/main
+
+    - name: Push Changes to Fork
+      run: |
+        git push origin main || true
+
+    - name: Create Pull Request
+      uses: peter-evans/create-pull-request@v5
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        commit-message: 'Sync upstream changes'
+        branch: sync-upstream
+        title: 'Sync Upstream Changes'
+        body: |
+          This PR merges changes from the upstream repository to keep this fork updated.
