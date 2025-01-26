@@ -73,8 +73,6 @@ function handleActivityToggle(e: React.MouseEvent<HTMLButtonElement, MouseEvent>
     const ignoredActivityIndex = settings.store.ignoredActivities.findIndex(act => act.id === activity.id);
     if (ignoredActivityIndex === -1) settings.store.ignoredActivities.push(activity);
     else settings.store.ignoredActivities.splice(ignoredActivityIndex, 1);
-
-    recalculateActivities();
 }
 
 function recalculateActivities() {
@@ -171,7 +169,6 @@ const settings = definePluginSettings({
     idsList: {
         type: OptionType.COMPONENT,
         description: "",
-        default: "",
         onChange(newValue: string) {
             const ids = new Set(newValue.split(",").map(id => id.trim()).filter(Boolean));
             settings.store.idsList = Array.from(ids).join(", ");
@@ -212,7 +209,8 @@ const settings = definePluginSettings({
     ignoredActivities: {
         type: OptionType.CUSTOM,
         default: [] as IgnoredActivity[],
-        onChange: recalculateActivities
+        onChange: recalculateActivities,
+        description: "",
     }
 });
 
