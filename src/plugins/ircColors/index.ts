@@ -21,13 +21,13 @@ import { Devs } from "@utils/constants";
 import definePlugin, { OptionType } from "@utils/types";
 
 // Compute a 64-bit FNV-1a hash of the passed data
-function hash(data: ArrayBuffer) {
+function hash(id: bigint) {
     const fnvPrime = 1099511628211n;
     const offsetBasis = 14695981039346656037n;
 
     let result = offsetBasis;
-    for (const byte of new Uint8Array(data)) {
-        result ^= BigInt(byte);
+    for (let i = 7n; i >= 0n; i--) {
+        result ^= (id >> (8n * i)) & 0xffn;
         result = (result * fnvPrime) % 2n ** 32n;
     }
 
@@ -36,20 +36,14 @@ function hash(data: ArrayBuffer) {
 
 // Calculate a CSS color string based on the user ID
 function calculateNameColorForUser(id: bigint) {
-    const idBuffer = new ArrayBuffer(16);
-    {
-        const idView = new DataView(idBuffer);
-        idView.setBigUint64(0, id);
-    }
-    const idHash = hash(idBuffer);
+    const idHash = hash(id);
 
     return `hsl(${idHash % 360n}, 100%, ${settings.store.lightness}%)`;
 }
 
 const settings = definePluginSettings({
     lightness: {
-        description: "Lightness, in %. Change if the colors are too light or too dark.",
-        restartNeeded: true,
+        description: "Lightness, in %. Change if the colors are too light or too dark. Reopen the chat to apply.",
         type: OptionType.NUMBER,
         default: 70,
     },
@@ -57,7 +51,7 @@ const settings = definePluginSettings({
         description: "Replace role colors in the member list",
         restartNeeded: true,
         type: OptionType.BOOLEAN,
-        default: false,
+        default: true,
     },
 });
 
@@ -67,7 +61,7 @@ export default definePlugin({
     authors: [Devs.Grzesiek11],
     patches: [
         {
-            find: "=\"SYSTEM_TAG\"",
+            find: '="SYSTEM_TAG"',
             replacement: {
                 match: /(?<=className:\i\.username,style:.{0,50}:void 0,)/,
                 replace: "style:{color:$self.calculateNameColorForMessageContext(arguments[0])},",
@@ -84,9 +78,17 @@ export default definePlugin({
     ],
     settings,
     calculateNameColorForMessageContext(context: any) {
-        return calculateNameColorForUser(BigInt(context.message.author.id));
+        const id = context?.message?.author?.id;
+        if (id == null) {
+            return null;
+        }
+        return calculateNameColorForUser(BigInt(id));
     },
     calculateNameColorForListContext(context: any) {
-        return calculateNameColorForUser(BigInt(context.user.id));
+        const id = context?.user?.id;
+        if (id == null) {
+            return null;
+        }
+        return calculateNameColorForUser(BigInt(id));
     },
 });
