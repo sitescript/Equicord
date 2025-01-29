@@ -24,7 +24,7 @@ export default definePlugin({
         {
             find: "krisp_browser_models",
             replacement: {
-                match: /\i:function\(\)\{/,
+                match: /\(function\(\)\{/,
                 replace: "$&return null;"
             }
         },
