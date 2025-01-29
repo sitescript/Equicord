@@ -80,7 +80,7 @@ const StatsModule: { default: FunctionComponent<ModalProps>; } = proxyLazy(() =>
     return wreq(Number(id));
 });
 
-const requireCustomStatusModal = extractAndLoadChunksLazy(["action:\"PRESS_ADD_CUSTOM_STATUS\"", ".openModalLazy"]);
+const requireCustomStatusModal = extractAndLoadChunksLazy(["action:\"PRESS_ADD_CUSTOM_STATUS\"", /\i\.\i\i\)/]);
 
 const openCustomStatusModalLazy = () => openModalLazy(async () => {
     await requireCustomStatusModal();
@@ -171,7 +171,7 @@ export default definePlugin({
         {
             find: "#{intl::CUSTOM_STATUS_SET_CUSTOM_STATUS}",
             replacement: {
-                match: /\.ModalFooter,.{0,70}\i\.\i\.string\(\i\.\i#{intl::SAVE}\)\}\)/,
+                match: /\.\i\i,children:.{0,70}\i\.\i\.string\(\i\.\i#{intl::SAVE}\)\}\)/,
                 replace: "$&,$self.renderRememberButton(this.state)"
             }
         },
