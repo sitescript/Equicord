@@ -55,10 +55,6 @@ export const Devs = /* #__PURE__*/ Object.freeze({
         name: "trey",
         id: 354427199023218689n
     },
-    Crxa: {
-        name: "Crxa",
-        id: 920290194886914069n
-    },
     Megu: {
         name: "Megumin",
         id: 545581357812678656n
@@ -967,10 +963,6 @@ export const EquicordDevs = Object.freeze({
     Loukios: {
         name: "Loukios",
         id: 211461918127292416n
-    },
-    Crxa: {
-        name: "Crxa",
-        id: 920290194886914069n
     },
     vappstar: {
         name: "vappstar",
