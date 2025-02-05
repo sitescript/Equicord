@@ -89,7 +89,9 @@ async function generateDebugInfoMessage() {
         Client: `${RELEASE_CHANNEL} ~ ${client}`,
         Platform: `${DiscordNative.process.platform === "darwin" ?
             (DiscordNative.process.arch === "arm64" ? "MacSilicon" : "MacIntel") :
-            `${DiscordNative.process.platform} ${DiscordNative.process.arch}`}`
+            DiscordNative.process.platform === "win32" && DiscordNative.process.arch === "x64" ?
+                "Windows" :
+                `${DiscordNative.process.platform} ${DiscordNative.process.arch}`}`
     };
 
     if (IS_DISCORD_DESKTOP) {
