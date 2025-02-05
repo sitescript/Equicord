@@ -83,23 +83,25 @@ async function generateDebugInfoMessage() {
     })();
 
     const info = {
-        Suncord:
+        Equicord:
             `v${VERSION} • [${gitHash}](<https://github.com/Equicord/Equicord/commit/${gitHash}>)` +
             `${SettingsPlugin.additionalInfo} - ${Intl.DateTimeFormat("en-GB", { dateStyle: "medium" }).format(BUILD_TIMESTAMP)}`,
         Client: `${RELEASE_CHANNEL} ~ ${client}`,
-        Platform: window.navigator.platform
+        Platform: `${DiscordNative.process.platform === "darwin" ?
+            (DiscordNative.process.arch === "arm64" ? "MacSilicon" : "MacIntel") :
+            `${DiscordNative.process.platform} ${DiscordNative.process.arch}`}`
     };
 
     if (IS_DISCORD_DESKTOP) {
-        info[":rocketcrash: LCR"] = (await tryOrElse(() => DiscordNative.processUtils.getLastCrash(), undefined))?.rendererCrashReason ?? "N/A";
+        info["Last Crash Reason"] = (await tryOrElse(() => DiscordNative.processUtils.getLastCrash(), undefined))?.rendererCrashReason ?? "N/A";
     }
 
     const commonIssues = {
-        "NoRPC enabled": Vencord.Plugins.isPluginEnabled("NoRPC"),
-        "Activity Sharing disabled": tryOrElse(() => !ShowCurrentGame.getSetting(), false),
-        ":suncord: Suncord Dev Build": !IS_STANDALONE,
-        ":electric_plug: Has Userplugins": Object.values(PluginMeta).some(m => m.userPlugin),
-        "More than two weeks out of date": BUILD_TIMESTAMP < Date.now() - 12096e5,
+        ":warning: NoRPC enabled": Vencord.Plugins.isPluginEnabled("NoRPC"),
+        ":warning: Activity Sharing disabled": tryOrElse(() => !ShowCurrentGame.getSetting(), false),
+        ":warning: Equicord Dev Build": !IS_STANDALONE,
+        ":warning: Has Userplugins": Object.values(PluginMeta).some(m => m.userPlugin),
+        ":warning: More than two weeks out of date": BUILD_TIMESTAMP < Date.now() - 12096e5,
     };
 
     let content = `>>> ${Object.entries(info).map(([k, v]) => `**${k}**: ${v}`).join("\n")}`;
