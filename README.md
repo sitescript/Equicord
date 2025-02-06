@@ -10,7 +10,7 @@ You can join our [discord server](https://discord.gg/5Xh2W87egW) for commits, ch
 
 ### Extra included plugins
 <details>
-<summary>146 additional plugins</summary>
+<summary>151 additional plugins</summary>
 
 ### All Platforms
 - AllCallTimers by MaxHerbold & D3SOX
@@ -51,10 +51,12 @@ You can join our [discord server](https://discord.gg/5Xh2W87egW) for commits, ch
 - Encryptcord by Inbestigator
 - EquicordCSS by thororen, Panniku, Dablulite, Coolesding, MiniDiscordThemes, LuckFire, gold_me
 - ExportContacts by dat_insanity
+- FakeProfileThemesAndEffects by ryan
 - FindReply by newwares
 - FixFileExtensions by thororen
 - FrequentQuickSwitcher by Samwich
 - FriendshipRanks by Samwich
+- FullVcPfp by mochie
 - FriendTags by Samwich
 - GensokyoRadioRPC by RyanCaoDev & Prince527
 - GifCollections by Aria & Creations
@@ -90,7 +92,9 @@ You can join our [discord server](https://discord.gg/5Xh2W87egW) for commits, ch
 - MessageLoggerEnhanced by Aria
 - MessagePeek by HypedDomi
 - MessageTranslate by Samwich
+- ModalFade by Kyuuhachi
 - MoreStickers by Leko & Arjix
+- MoreThemes by Kyuuhachi
 - NeverPausePreviews by vappstar
 - NewPluginsManager by Sqaaakoi
 - NoAppsAllowed by kvba
@@ -132,6 +136,7 @@ You can join our [discord server](https://discord.gg/5Xh2W87egW) for commits, ch
 - ThemeLibrary by Fafa
 - Timezones by Aria
 - Title by Kyuuhachi
+- toggleVideoBind by mochie
 - TosuRPC by AutumnVN
 - Translate+ by Prince527 & Ven
 - UnitConverter by sadan
@@ -145,6 +150,7 @@ You can join our [discord server](https://discord.gg/5Xh2W87egW) for commits, ch
 - VideoSpeed by Samwich
 - ViewRawVariant (ViewRaw2) by Kyuuhachi
 - VoiceChatUtilities by D3SOX
+- VoiceJoinMessages by Sqaaakoi & maintained by thororen
 - WebpackTarball by Kyuuhachi
 - WhitelistedEmojis by Creations
 - WhosWatching by fres
@@ -167,7 +173,6 @@ You can join our [discord server](https://discord.gg/5Xh2W87egW) for commits, ch
 - FurudoSpeak by example-git
 - Shakespearean by vmohammad
 - VoiceChannelLog by Sqaaakoi & maintained by thororen
-- VoiceJoinMessages by Sqaaakoi & maintained by thororen
 
 </details>
 
