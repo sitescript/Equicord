@@ -5,11 +5,7 @@
  */
 
 import { settings } from "..";
-<<<<<<< HEAD
-import { decodeColor, decodeColorsLegacy, decodeEffect, extractFPTE } from ".";
-=======
 import { decodeColor, decodeColorsLegacy, decodeEffect, extractFPTE } from "./fpte";
->>>>>>> 523ed8c7f7c183ea14312814ac041e694f9cfd29
 
 export interface UserProfile {
     bio: string;
