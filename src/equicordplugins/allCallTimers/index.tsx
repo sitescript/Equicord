@@ -105,11 +105,20 @@ export default definePlugin({
     settings,
     patches: [
         {
-            find: ".usernameSpeaking]",
+            find: "renderPrioritySpeaker",
             replacement: [
                 {
-                    match: /function\(\)\{.+:""(?=.*?userId:(\i))/,
-                    replace: "$&,$self.renderTimer($1.id),"
+                    match: /(render\(\)\{.+\}\),children:)\[(.+renderName\(\),)/,
+                    replace: "$&,$self.showClockInjection(this),"
+                }
+            ]
+        },
+        {
+            find: "renderPrioritySpeaker",
+            replacement: [
+                {
+                    match: /(renderName\(\)\{.+:"")/,
+                    replace: "$&,$self.showTextInjection(this),"
                 }
             ]
         }
@@ -216,10 +225,26 @@ export default definePlugin({
         }
     },
 
-    renderTimer(userId: string) {
+    showClockInjection(property: { props: { user: { id: string; }; }; }) {
+        if (settings.store.showWithoutHover) {
+            return "";
+        }
+        return this.showInjection(property);
+    },
+
+    showTextInjection(property: { props: { user: { id: string; }; }; }) {
         if (!settings.store.showWithoutHover) {
             return "";
         }
+        return this.showInjection(property);
+    },
+
+    showInjection(property: { props: { user: { id: string; }; }; }) {
+        const userId = property.props.user.id;
+        return this.renderTimer(userId);
+    },
+
+    renderTimer(userId: string) {
         // get the user join time from the users object
         const joinTime = userJoinTimes.get(userId);
         if (!joinTime?.time) {

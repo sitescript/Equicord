@@ -17,22 +17,16 @@
 */
 
 import { Button } from "@webpack/common";
-import { ButtonProps } from "@webpack/types";
 
 import { Heart } from "./Heart";
 
-export default function DonateButton({
-    look = Button.Looks.LINK,
-    color = Button.Colors.TRANSPARENT,
-    ...props
-}: Partial<ButtonProps>) {
+export default function DonateButton(props: any) {
     return (
         <Button
             {...props}
-            look={look}
-            color={color}
+            look={Button.Looks.LINK}
+            color={Button.Colors.TRANSPARENT}
             onClick={() => VencordNative.native.openExternal("https://github.com/sponsors/verticalsync")}
-            innerClassName="vc-donate-button"
         >
             <Heart />
             Donate

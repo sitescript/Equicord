@@ -124,11 +124,11 @@ export default definePlugin({
         },
         // Voice Users
         {
-            find: ".usernameSpeaking]",
+            find: "renderPrioritySpeaker(){",
             replacement: [
                 {
-                    match: /usernameSpeaking\]:.+?(?=children)(?=.*?userId:(\i))(?=.*?contextGuildId:(\i))/,
-                    replace: "$&style:$self.getColorStyle($1.id,$2),"
+                    match: /renderName\(\){.+?usernameSpeaking\]:.+?(?=children)/,
+                    replace: "$&style:$self.getColorStyle(this?.props?.user?.id,this?.props?.guildId),"
                 }
             ],
             predicate: () => settings.store.voiceUsers
