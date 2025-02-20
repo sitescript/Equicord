@@ -45,6 +45,7 @@ interface Activity {
         start?: number;
     };
     assets?: ActivityAssets;
+    assets2?: ActivityAssets;
     buttons?: Array<string>;
     name: string;
     application_id: string;
@@ -427,19 +428,19 @@ export default definePlugin({
                 large_text: trackData.album || undefined,
             };
         const largeImage2 = this.getLargeImage(trackData);
-        /* const assets: ActivityAssets = largeImage2 ?
-             {
-                 large_image: await getApplicationAsset2(largeImage2),
-                 large_text: trackData.album || undefined,
-                 ...(settings.store.showStatsFMLogo && {
-                     small_image: await getApplicationAsset2("statsfm-large"),
-                     small_text: "Stats.fm"
-                 }),
-             } : {
-                 large_image: await getApplicationAsset2("statsfm-large"),
-                 large_text: trackData.album || undefined,
-             };
-             */
+        const assets2: ActivityAssets = largeImage2 ?
+            {
+                large_image: await getApplicationAsset2(largeImage2),
+                large_text: trackData.album || undefined,
+                ...(settings.store.showStatsFMLogo && {
+                    small_image: await getApplicationAsset2("statsfm-large"),
+                    small_text: "Stats.fm"
+                }),
+            } : {
+                large_image: await getApplicationAsset2("statsfm-large"),
+                large_text: trackData.album || undefined,
+            };
+        const trackData2 = await this.fetchTrackDataStatsfm();
         const buttons: ActivityButton[] = [];
 
         if (settings.store.shareUsername)
@@ -499,6 +500,7 @@ export default definePlugin({
             details: trackData.name,
             state: trackData.artist,
             assets,
+            assets2,
 
             buttons: buttons.length ? buttons.map(v => v.label) : undefined,
             metadata: {
