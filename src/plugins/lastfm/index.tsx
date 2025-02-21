@@ -81,7 +81,12 @@ const enum NameFormat {
     SongFirst = "song-first",
     ArtistOnly = "artist",
     SongOnly = "song",
-    AlbumName = "album"
+    AlbumName = "album",
+    AlbumName2 = "album2",
+    ArtistOnly2 = "artist2",
+    ArtistFirst2 = "ArtistFirst2",
+    SongFirst2 = "SongFirst2",
+    SongOnly2 = "SongOnly2",
 }
 
 interface Albums {
@@ -179,7 +184,7 @@ const settings = definePluginSettings({
         type: OptionType.BOOLEAN,
         default: true,
     },
-    sharesongStatsfm: {
+    StatsfmSong: {
         description: "show link to song on stats.fm",
         type: OptionType.BOOLEAN,
         default: true,
@@ -189,7 +194,7 @@ const settings = definePluginSettings({
         type: OptionType.BOOLEAN,
         default: true,
     },
-    hidewithSpotifystatsfm: {
+    hidewithSpotifySFM: {
         description: "hide stats.fm presence if spotify is running",
         type: OptionType.BOOLEAN,
         default: true,
@@ -260,6 +265,11 @@ const settings = definePluginSettings({
                 default: true
             },
             {
+                label: "Use Large Stats.fm logo",
+                value: "StatsFMLogo",
+                default: false
+            },
+            {
                 label: "Use generic placeholder",
                 value: "placeholder"
             }
@@ -294,6 +304,10 @@ export default definePlugin({
                 Application description: (personal use) <br /> <br />
 
                 And copy the API key (not the shared secret!)
+            </Forms.FormText>
+
+            <Forms.FormTitle tag="h3">How to get Stats.fm Presence!</Forms.FormTitle>
+            <Forms.FormText>
                 STATSFM ONLY:
                 If you want to use stats.fm, you will need an account linked @ <Link href="https://stats.fm/login"></Link> and have your listening history public.
             </Forms.FormText>
@@ -453,7 +467,7 @@ export default definePlugin({
                 label: "Stats.fm Profile",
                 url: `https://stats.fm/user/${settings.store.statsfmusername}`,
             });
-        if (settings.store.sharesongStatsfm)
+        if (settings.store.StatsfmSong)
             buttons.push({
                 label: "View Song",
                 url: trackData.url,
@@ -476,17 +490,16 @@ export default definePlugin({
                     return trackData.name;
                 case NameFormat.AlbumName:
                     return trackData.album || settings.store.statusName;
-                /*                case NameFormat.ArtistFirst2: // uhh not sure if this is needed but fuck it
-                                    return trackData2.artist + " - " + trackData2.name;
-                                case NameFormat.SongFirst2:
-                                    return trackData2.name + " - " + trackData2.artist;
-                                case NameFormat.ArtistOnly2:
-                                    return trackData2.artist;
-                                case NameFormat.SongOnly2:
-                                    return trackData2.name;
-                                case NameFormat.AlbumName2:
-                                    return trackData2.album || settings.store.statusName;
-                */
+                case NameFormat.ArtistFirst2: // uhh not sure if this is needed but fuck it
+                    return trackData2?.artist ? `${trackData2.artist} - ${trackData2.name}` : settings.store.statusName;
+                case NameFormat.SongFirst2:
+                    return trackData2?.name ? `${trackData2.name} - ${trackData2.artist}` : settings.store.statusName;
+                case NameFormat.ArtistOnly2:
+                    return trackData2?.artist ?? settings.store.statusName;
+                case NameFormat.SongOnly2:
+                    return trackData2?.name ?? settings.store.statusName;
+                case NameFormat.AlbumName2:
+                    return trackData2?.album ?? settings.store.statusName;
                 default:
                     return settings.store.statusName;
             }
