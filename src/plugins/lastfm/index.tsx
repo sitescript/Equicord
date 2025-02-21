@@ -214,6 +214,11 @@ const settings = definePluginSettings({
         type: OptionType.BOOLEAN,
         default: false,
     },
+    enableGameActivitySFM: {
+        description: "Enable game activity for stats.fm",
+        type: OptionType.BOOLEAN,
+        default: false,
+    },
     statusName: {
         description: "custom status text",
         type: OptionType.STRING,
