@@ -39,3 +39,4 @@ export default definePlugin({
     start: () => addChatBarButton("Freakcord", ChatBarIcon),
     stop: () => removeChatBarButton("Freakcord")
 });
+
