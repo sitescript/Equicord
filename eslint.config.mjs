@@ -4,9 +4,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-// @ts-check
-
 import stylistic from "@stylistic/eslint-plugin";
+import react from "eslint-plugin-react";
 import header from "eslint-plugin-simple-header";
 import simpleImportSort from "eslint-plugin-simple-import-sort";
 import unusedImports from "eslint-plugin-unused-imports";
@@ -16,12 +15,28 @@ export default tseslint.config(
     { ignores: ["dist", "browser", "packages/vencord-types"] },
     {
         files: ["src/**/*.{tsx,ts,mts,mjs,js,jsx}", "eslint.config.mjs"],
+        settings: {
+            react: {
+                version: "18"
+            }
+        },
+        ...react.configs.flat.recommended,
+        rules: {
+            ...react.configs.flat.recommended.rules,
+            "react/react-in-jsx-scope": "off",
+            "react/prop-types": "off",
+            "react/display-name": "off",
+            "react/no-unescaped-entities": "off",
+        }
+    },
+    {
+        files: ["src/**/*.{tsx,ts,mts,mjs,js,jsx}", "eslint.config.mjs"],
         plugins: {
             "simple-header": header,
             "@stylistic": stylistic,
             "@typescript-eslint": tseslint.plugin,
             "simple-import-sort": simpleImportSort,
-            "unused-imports": unusedImports,
+            "unused-imports": unusedImports
         },
         settings: {
             "import/resolver": {
@@ -88,7 +103,13 @@ export default tseslint.config(
             "no-invalid-regexp": "error",
             "no-constant-condition": ["error", { "checkLoops": false }],
             "no-duplicate-imports": "error",
-            "dot-notation": "error",
+            "@typescript-eslint/dot-notation": [
+                "error",
+                {
+                    "allowPrivateClassPropertyAccess": true,
+                    "allowProtectedClassPropertyAccess": true
+                }
+            ],
             "no-useless-escape": [
                 "error",
                 {
@@ -111,7 +132,7 @@ export default tseslint.config(
             "no-unsafe-optional-chaining": "error",
             "no-useless-backreference": "error",
             "use-isnan": "error",
-            "prefer-const": "error",
+            "prefer-const": ["error", { destructuring: "all" }],
             "prefer-spread": "error",
 
             // Plugin Rules

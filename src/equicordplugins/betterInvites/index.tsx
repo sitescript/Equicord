@@ -40,12 +40,12 @@ export default definePlugin({
             find: "#{intl::HUB_INVITE_ANOTHER_SCHOOL_LINK}",
             replacement: [
                 {
-                    match: /,(\i)&&(\(.{0,15}\i\.TooltipContainer.+)(#{intl::Messages.GUEST_MEMBERSHIP_EXPLANATION})/,
+                    match: /,(\i)&&(\(.{0,50}\i\.tooltipContainer.+)(\i\.\i\.string\(\i\.\i#{intl::GUEST_MEMBERSHIP_EXPLANATION}\))/,
                     replace: ",($1||((!$1)&&arguments[0].invite.expires_at)) && $2$self.RenderTip($1, $3, arguments[0].invite.expires_at)"
                 },
                 {
-                    match: /(\.jsx\)\(\i.\i.Info,{.+onClick):(\i\?\i:null),/,
-                    replace: "$1:$2 || $self.Lurkable(arguments[0].invite.guild.id, arguments[0].invite.guild.features),"
+                    match: /(\.jsx\)\(\i.\i.Info,{.+onClick:\i)/,
+                    replace: "$& || $self.Lurkable(arguments[0].invite.guild.id, arguments[0].invite.guild.features)"
                 },
                 {
                     match: /(\.jsx\)\(\i\.\i\.Header,\{)text:(\i)/,
@@ -61,6 +61,7 @@ export default definePlugin({
         return <div className="vc-bi-header-inner">
             {(inviter && (currentUserId !== inviter.id)) ? <>
                 <img
+                    alt=""
                     className={classes(AvatarStyles.avatar, AvatarStyles.clickable) + " vc-bi-inviter-avatar"}
                     onClick={() => openUserProfile(inviter.id)}
                     src={inviter.avatar ? `https://cdn.discordapp.com/avatars/${inviter.id}/${inviter.avatar}.webp?size=80` : "/assets/1f0bfc0865d324c2587920a7d80c609b.png?size=128"}
@@ -72,4 +73,3 @@ export default definePlugin({
     },
     startAt: StartAt.WebpackReady
 });
-

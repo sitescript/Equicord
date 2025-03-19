@@ -10,7 +10,7 @@ You can join our [discord server](https://discord.gg/5Xh2W87egW) for commits, ch
 
 ### Extra included plugins
 <details>
-<summary>146 additional plugins</summary>
+<summary>160 additional plugins</summary>
 
 ### All Platforms
 - AllCallTimers by MaxHerbold & D3SOX
@@ -25,6 +25,7 @@ You can join our [discord server](https://discord.gg/5Xh2W87egW) for commits, ch
 - BetterInvites by iamme
 - BetterQuickReact by Ven & Sqaaakoi
 - BetterUserArea by Samwich
+- BetterPlusReacts by Joona
 - BlockKeywords by catcraft
 - BlockKrsip by D3SOX
 - BypassStatus by Inbestigator & thororen
@@ -33,6 +34,7 @@ You can join our [discord server](https://discord.gg/5Xh2W87egW) for commits, ch
 - CharacterCounter by Creations & Panniku
 - CleanChannelName by AutumnVN
 - ClientSideBlock by Samwich
+- ClipsEnhancements by niko
 - CommandPalette by Ethan
 - CopyUserMention by Cortex & castdrian
 - CustomSounds by TheKodeToad & SpikeHD
@@ -43,43 +45,43 @@ You can join our [discord server](https://discord.gg/5Xh2W87egW) for commits, ch
 - DecodeBase64 by ThePirateStoner
 - DeadMembers by Kyuuhachi
 - Demonstration by Samwich
+- DisableAnimations by S€th
 - DisableCameras by Joona
-- DoNotLeak by Perny
 - DontFilterMe by Samwich
-- DoubleCounterBypass by nyx
 - EmojiDumper by Cortex, Samwich, Woosh
 - Encryptcord by Inbestigator
 - EquicordCSS by thororen, Panniku, Dablulite, Coolesding, MiniDiscordThemes, LuckFire, gold_me
+- Equissant by SomeAspy & thororen
 - ExportContacts by dat_insanity
 - FakeProfileThemesAndEffects by ryan
 - FindReply by newwares
 - FixFileExtensions by thororen
+- FollowVoiceUser by TheArmagan
 - FrequentQuickSwitcher by Samwich
+- FriendCodes by HypedDomi
 - FriendshipRanks by Samwich
+- FullVcPfp by mochie
 - FriendTags by Samwich
-- FullUserInChatbox by sadan
 - GensokyoRadioRPC by RyanCaoDev & Prince527
 - GifCollections by Aria & Creations
 - GifRoulette by Samwich
+- GitHubRepos by talhakf
 - Glide by Samwich
 - GlobalBadges by HypedDomi & Hosted by Wolfie
-- GodMode by Tolgchu
-- GoodPerson by nin0dev & mantikafasi
 - GoogleThat by Samwich
-- Grammar by Samwich
-- GrammarFix by unstream
 - HideChatButtons by iamme
-- HideMessage by Hanzy
 - HideServers by bepvte
 - HolyNotes by Wolfie
 - HomeTyping by Samwich
 - HopOn by ImLvna
 - Husk by nin0dev
+- IconViewer by iamme
 - Identity by Samwich
+- IgnoreCalls by TheArmagan
 - IgnoreTerms by D3SOX
 - ImagePreview by Creations
+- ImgToGif by zyqunix
 - InRole by nin0dev
-- IrcColors by Grzesiek11
 - IRememberYou by zoodogood
 - Jumpscare by Surgedevs
 - JumpToStart by Samwich
@@ -89,14 +91,15 @@ You can join our [discord server](https://discord.gg/5Xh2W87egW) for commits, ch
 - LoginWithQR by nexpid
 - MediaPlaybackSpeed by D3SOX
 - Meow by Samwich
+- MessageBurst by port
 - MessageColors by Hen
 - MessageLinkTooltip by Kyuuhachi
 - MessageLoggerEnhanced by Aria
-- MessagePeek by HypedDomi
 - MessageTranslate by Samwich
 - ModalFade by Kyuuhachi
 - MoreStickers by Leko & Arjix
 - MoreThemes by Kyuuhachi
+- NeverPausePreviews by vappstar
 - NewPluginsManager by Sqaaakoi
 - NoAppsAllowed by kvba
 - NoBulletPoints by Samwich
@@ -108,22 +111,29 @@ You can join our [discord server](https://discord.gg/5Xh2W87egW) for commits, ch
 - NotificationTitle by Kyuuhachi
 - OnePingPerDM by ProffDea
 - PinIcon by iamme
+- PolishWording (Grammar) by Samwich
 - PlatformSpoofer by Drag
 - PurgeMessages by bhop & nyx
+- QuestCompleter by Amia
 - QuestionMarkReplacement by nyx
 - Quoter by Samwich
+- RandomVoice by omaw
+- Remix by MrDiamond
 - RemixMe by kvba
 - RepeatMessage by Tolgchu
-- ReplaceActivityTypes by Nyako
 - ReplyPingControl by ant0n & MrDiamond
+- RPCEditor by Nyako & nin0dev
 - RPCStats by Samwich
 - SearchFix by Jaxx
 - SekaiStickers by MaiKokain
 - ServerSearch by camila314
 - ShowBadgesInChat by Inbestigator & KrystalSkull
+- Signature by Ven, Rini, ImBanana, KrystalSkull
 - SidebarChat by Joona
+- StatsfmRPC by Crxaw & vmohammad
 - Slap by Korbo
 - SoundBoardLogger by Moxxie, fres, echo, maintained by thororen
+- SpotifyLyrics by Joona
 - StatusPresets by iamme
 - SteamStatusSync by niko
 - StickerBlocker by Samwich
@@ -133,6 +143,7 @@ You can join our [discord server](https://discord.gg/5Xh2W87egW) for commits, ch
 - ThemeLibrary by Fafa
 - Timezones by Aria
 - Title by Kyuuhachi
+- toggleVideoBind by mochie
 - TosuRPC by AutumnVN
 - Translate+ by Prince527 & Ven
 - UnitConverter by sadan
@@ -141,11 +152,13 @@ You can join our [discord server](https://discord.gg/5Xh2W87egW) for commits, ch
 - UserPFP by nexpid & thororen
 - UwUifier by echo
 - VCSupport by thororen
+- VCNarratorCustom by Loukios, ported by example-git
+- VCPanelSettings by nin0dev
 - VencordRPC by AutumnVN
 - VideoSpeed by Samwich
-- ViewRaw2 by Kyuuhachi
-- VoiceChannelLog by Sqaaakoi & maintained by thororen
+- ViewRawVariant (ViewRaw2) by Kyuuhachi
 - VoiceChatUtilities by D3SOX
+- VoiceJoinMessages by Sqaaakoi & maintained by thororen
 - WebpackTarball by Kyuuhachi
 - WhitelistedEmojis by Creations
 - WhosWatching by fres
@@ -158,16 +171,16 @@ You can join our [discord server](https://discord.gg/5Xh2W87egW) for commits, ch
 - None At This Time
 
 ### Vesktop & Equibop Only
-- None At This Time
+- ScreenRecorder by AutumnVN
 
 ### Discord Desktop Only
 - MediaDownloader by Colorman
-- QuestCompleter by HappyEnderman, SerStars, maintained by thororen
 - StatusWhilePlaying by thororen
 
 ### Equicord Devbuilds Only
+- FurudoSpeak by example-git
 - Shakespearean by vmohammad
-- VoiceJoinMessages by Sqaaakoi & maintained by thororen
+- VoiceChannelLog by Sqaaakoi & maintained by thororen
 
 </details>
 
@@ -182,9 +195,13 @@ MacOS
 - [GUI](https://github.com/Equicord/Equilotl/releases/latest/download/Equilotl.MacOS.zip)
 
 Linux
+- [GUI-X11](https://github.com/Equicord/Equilotl/releases/latest/download/Equilotl-x11)
+- [GUI-Wayland](https://github.com/Equicord/Equilotl/releases/latest/download/Equilotl-wayland)
 - [CLI](https://github.com/Equicord/Equilotl/releases/latest/download/EquilotlCli-Linux)
-
-
+- [AUR](https://aur.archlinux.org/packages?O=0&K=equicord)
+```shell
+sh -c "$(curl -sS https://raw.githubusercontent.com/Equicord/Equicord/refs/heads/main/misc/install.sh)"
+```
 ## Installing Equicord Devbuild
 
 ### Dependencies
@@ -210,7 +227,7 @@ cd Equicord
 Install dependencies:
 
 ```shell
-pnpm install --frozen-lockfile
+pnpm install --no-frozen-lockfile
 ```
 
 Build Equicord:

@@ -6,7 +6,7 @@
 
 import { classNameFactory } from "@api/Styles";
 import { useForceUpdater } from "@utils/react";
-import { findByPropsLazy } from "@webpack";
+import { findComponentByCodeLazy } from "@webpack";
 import { Button, ContextMenuApi, Flex, FluxDispatcher, Forms, useCallback, useEffect, useRef, UserStore, useState } from "@webpack/common";
 
 import { BasicChannelTabsProps, ChannelTabsProps, createTab, handleChannelSwitch, openedTabs, openStartupTabs, saveTabs, settings, setUpdaterFunction, useGhostTabs } from "../util";
@@ -16,7 +16,8 @@ import { BasicContextMenu } from "./ContextMenus";
 
 type TabSet = Record<string, ChannelTabsProps[]>;
 
-const { PlusSmallIcon } = findByPropsLazy("PlusSmallIcon");
+const PlusSmallIcon = findComponentByCodeLazy("0v-5h5a1");
+
 const cl = classNameFactory("vc-channeltabs-");
 
 export default function ChannelsTabsContainer(props: BasicChannelTabsProps) {
@@ -29,16 +30,6 @@ export default function ChannelsTabsContainer(props: BasicChannelTabsProps) {
         _update();
         if (save) saveTabs(userId);
     }, [userId]);
-
-    useEffect(() => {
-        // for some reason, the app directory is it's own page instead of a layer, so when it's opened
-        // everything behind it is destroyed, including our container. this workaround is required
-        // to properly add the container back without reinitializing everything
-        if ((Vencord.Plugins.plugins.ChannelTabs as any).appDirectoryClosed) {
-            setUserId(UserStore.getCurrentUser().id);
-            update(false);
-        }
-    }, []);
 
     const ref = useRef<HTMLDivElement>(null);
 
@@ -78,14 +69,14 @@ export default function ChannelsTabsContainer(props: BasicChannelTabsProps) {
         >
             <div className={cl("tab-container")}>
                 {openedTabs.map((tab, i) =>
-                    <ChannelTab {...tab} index={i} />
+                    <ChannelTab {...tab} index={i} key={i} />
                 )}
 
                 <button
                     onClick={() => createTab(props, true)}
                     className={cl("button", "new-button", "hoverable")}
                 >
-                    <PlusSmallIcon height={20} width={20} />
+                    <PlusSmallIcon />
                 </button>
 
                 {GhostTabs}

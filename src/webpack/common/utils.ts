@@ -16,7 +16,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { runtimeHashMessageKey } from "@utils/intlHash";
 import type { Channel } from "discord-types/general";
 
 import { _resolveReady, filters, findByCodeLazy, findByPropsLazy, findLazy, mapMangledModuleLazy, waitFor } from "../webpack";
@@ -47,7 +46,7 @@ export const Constants: t.Constants = mapMangledModuleLazy('ME:"/users/@me"', {
 export const RestAPI: t.RestAPI = findLazy(m => typeof m === "object" && m.del && m.put);
 export const moment: typeof import("moment") = findByPropsLazy("parseTwoDigitYear");
 
-export const hljs: typeof import("highlight.js") = findByPropsLazy("highlight", "registerLanguage");
+export const hljs: typeof import("highlight.js").default = findByPropsLazy("highlight", "registerLanguage");
 
 export const useDrag = findByCodeLazy("useDrag::spec.begin was deprecated");
 // you cant make a better finder i love that they remove display names sm
@@ -61,9 +60,9 @@ export const { match, P }: Pick<typeof import("ts-pattern"), "match" | "P"> = ma
 export const lodash: typeof import("lodash") = findByPropsLazy("debounce", "cloneDeep");
 
 export const i18n = mapMangledModuleLazy('defaultLocale:"en-US"', {
-    intl: filters.byProps("string", "format"),
-    t: filters.byProps(runtimeHashMessageKey("DISCORD"))
-});
+    t: m => m?.[Symbol.toStringTag] === "IntlMessagesProxy",
+    intl: m => m != null && Object.getPrototypeOf(m)?.withFormatters != null
+}, true);
 
 export let SnowflakeUtils: t.SnowflakeUtils;
 waitFor(["fromTimestamp", "extractTimestamp"], m => SnowflakeUtils = m);
@@ -74,10 +73,15 @@ export let Alerts: t.Alerts;
 waitFor(["show", "close"], m => Alerts = m);
 
 const ToastType = {
-    MESSAGE: 0,
-    SUCCESS: 1,
-    FAILURE: 2,
-    CUSTOM: 3
+    MESSAGE: "message",
+    SUCCESS: "success",
+    FAILURE: "failure",
+    CUSTOM: "custom",
+    CLIP: "clip",
+    LINK: "link",
+    FORWARD: "forward",
+    BOOKMARK: "bookmark",
+    CLOCK: "clock"
 };
 const ToastPosition = {
     TOP: 0,
@@ -90,7 +94,7 @@ export interface ToastData {
     /**
      * Toasts.Type
      */
-    type: number,
+    type: string,
     options?: ToastOptions;
 }
 
@@ -113,7 +117,7 @@ export const Toasts = {
     ...{} as {
         show(data: ToastData): void;
         pop(): void;
-        create(message: string, type: number, options?: ToastOptions): ToastData;
+        create(message: string, type: string, options?: ToastOptions): ToastData;
     }
 };
 
@@ -140,9 +144,12 @@ export const UploadHandler = {
     promptToUpload: findByCodeLazy("#{intl::ATTACHMENT_TOO_MANY_ERROR_TITLE}") as (files: File[], channel: Channel, draftType: Number) => void
 };
 
-export const ApplicationAssetUtils = findByPropsLazy("fetchAssetIds", "getAssetImage") as {
-    fetchAssetIds: (applicationId: string, e: string[]) => Promise<string[]>;
-};
+export const ApplicationAssetUtils = mapMangledModuleLazy("getAssetImage: size must === [", {
+    fetchAssetIds: filters.byCode('.startsWith("http:")', ".dispatch({"),
+    getAssetFromImageURL: filters.byCode("].serialize(", ',":"'),
+    getAssetImage: filters.byCode("getAssetImage: size must === ["),
+    getAssets: filters.byCode(".assets")
+});
 
 export const Clipboard: t.Clipboard = mapMangledModuleLazy('queryCommandEnabled("copy")', {
     copy: filters.byCode(".copy("),
@@ -165,9 +172,13 @@ waitFor(["open", "saveAccountChanges"], m => SettingsRouter = m);
 
 export const PermissionsBits: t.PermissionsBits = findLazy(m => typeof m.ADMINISTRATOR === "bigint");
 
-export const zustandCreate = findByCodeLazy("will be removed in v4");
+export const { zustandCreate } = mapMangledModuleLazy(["useSyncExternalStoreWithSelector:", "Object.assign"], {
+    zustandCreate: filters.byCode(/=>(\i)\?\i\(\1/)
+});
 
-export const zustandPersist = findByCodeLazy("[zustand persist middleware]");
+export const { zustandPersist } = mapMangledModuleLazy(".onRehydrateStorage)?", {
+    zustandPersist: filters.byCode(/(\(\i,\i\))=>.+?\i\1/)
+});
 
 export const MessageActions = findByPropsLazy("editMessage", "sendMessage");
 export const MessageCache = findByPropsLazy("clearCache", "_channelMessages");
@@ -187,7 +198,7 @@ export const ExpressionPickerStore: t.ExpressionPickerStore = mapMangledModuleLa
     toggleExpressionPicker: filters.byCode(/getState\(\)\.activeView===\i\?\i\(\):\i\(/),
     setExpressionPickerView: filters.byCode(/setState\({activeView:\i,lastActiveView:/),
     setSearchQuery: filters.byCode("searchQuery:"),
-    useExpressionPickerStore: filters.byCode("Object.is")
+    useExpressionPickerStore: filters.byCode(/\(\i,\i=\i\)=>/)
 });
 
 export const PopoutActions: t.PopoutActions = mapMangledModuleLazy('type:"POPOUT_WINDOW_OPEN"', {
@@ -200,4 +211,11 @@ export const UsernameUtils: t.UsernameUtils = findByPropsLazy("useName", "getGlo
 export const DisplayProfileUtils: t.DisplayProfileUtils = mapMangledModuleLazy(/=\i\.getUserProfile\(\i\),\i=\i\.getGuildMemberProfile\(/, {
     getDisplayProfile: filters.byCode(".getGuildMemberProfile("),
     useDisplayProfile: filters.byCode(/\[\i\.\i,\i\.\i],\(\)=>/)
+});
+
+export const DateUtils: t.DateUtils = mapMangledModuleLazy("millisecondsInUnit:", {
+    calendarFormat: filters.byCode("sameElse"),
+    dateFormat: filters.byCode('":'),
+    isSameDay: filters.byCode("Math.abs(+"),
+    diffAsUnits: filters.byCode("days:0", "millisecondsInUnit")
 });

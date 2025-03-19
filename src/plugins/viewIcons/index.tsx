@@ -193,10 +193,18 @@ export default definePlugin({
         // Avatar component used in User DMs "User Profile" popup in the right and Profiles Modal pfp
         {
             find: ".overlay:void 0,status:",
-            replacement: {
-                match: /avatarSrc:(\i),eventHandlers:(\i).+?"div",{...\2,/,
-                replace: "$&style:{cursor:\"pointer\"},onClick:()=>{$self.openAvatar($1)},"
-            },
+            replacement: [
+                {
+                    // FIXME(Bundler spread transform related): Remove old compatiblity once enough time has passed, if they don't revert
+                    match: /avatarSrc:(\i),eventHandlers:(\i).+?"div",{...\2,/,
+                    replace: "$&style:{cursor:\"pointer\"},onClick:()=>{$self.openAvatar($1)},",
+                    noWarn: true
+                },
+                {
+                    match: /avatarSrc:(\i),eventHandlers:(\i).+?"div",.{0,100}className:\i,/,
+                    replace: "$&style:{cursor:\"pointer\"},onClick:()=>{$self.openAvatar($1)},",
+                }
+            ],
             all: true
         },
         // Banners
@@ -209,26 +217,27 @@ export default definePlugin({
         },
         // Group DMs top small & large icon
         {
-            find: /\.recipients\.length>=2(?!<isMultiUserDM.{0,50})/,
+            find: '["aria-hidden"],"aria-label":',
             replacement: {
                 match: /null==\i\.icon\?.+?src:(\(0,\i\.\i\).+?\))(?=[,}])/,
-                replace: (m, iconUrl) => `${m},onClick:()=>$self.openAvatar(${iconUrl})`
+                // We have to check that icon is not an unread GDM in the server bar
+                replace: (m, iconUrl) => `${m},onClick:()=>arguments[0]?.size!=="SIZE_48"&&$self.openAvatar(${iconUrl})`
             }
         },
         // User DMs top small icon
         {
             find: ".cursorPointer:null,children",
             replacement: {
-                match: /.Avatar,.+?src:(.+?\))(?=[,}])/,
-                replace: (m, avatarUrl) => `${m},onClick:()=>$self.openAvatar(${avatarUrl})`
+                match: /(?=,src:(\i.getAvatarURL\(.+?[)]))/,
+                replace: (_, avatarUrl) => `,onClick:()=>$self.openAvatar(${avatarUrl})`
             }
         },
         // User Dms top large icon
         {
             find: 'experimentLocation:"empty_messages"',
             replacement: {
-                match: /.Avatar,.+?src:(.+?\))(?=[,}])/,
-                replace: (m, avatarUrl) => `${m},onClick:()=>$self.openAvatar(${avatarUrl})`
+                match: /(?<=SIZE_80,)(?=src:(.+?\))[,}])/,
+                replace: (_, avatarUrl) => `onClick:()=>$self.openAvatar(${avatarUrl}),`
             }
         }
     ]

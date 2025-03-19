@@ -16,26 +16,51 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Settings } from "@api/Settings";
+import { definePluginSettings, migratePluginSetting } from "@api/Settings";
 import { Devs } from "@utils/constants";
+import { runtimeHashMessageKey } from "@utils/intlHash";
 import { Logger } from "@utils/Logger";
 import definePlugin, { OptionType } from "@utils/types";
 import { findByPropsLazy } from "@webpack";
-import { MessageStore } from "@webpack/common";
+import { i18n, MessageStore } from "@webpack/common";
 import { Message } from "discord-types/general";
 
 const RelationshipStore = findByPropsLazy("getRelationships", "isBlocked");
 
 interface MessageDeleteProps {
-    collapsedReason: {
-        message: string;
-    };
+    // Internal intl message for BLOCKED_MESSAGE_COUNT
+    collapsedReason: () => any;
 }
+
+// Remove this migration once enough time has passed
+migratePluginSetting("NoBlockedMessages", "ignoreBlockedMessages", "ignoreMessages");
+const settings = definePluginSettings({
+    ignoreMessages: {
+        description: "Completely ignores incoming messages from blocked and ignored (if enabled) users",
+        type: OptionType.BOOLEAN,
+        default: false,
+        restartNeeded: true
+    },
+    hideRepliesToBlockedMessages: {
+        description: "Hides replies to blocked messages.",
+        type: OptionType.BOOLEAN,
+        default: false,
+        restartNeeded: false,
+    },
+    applyToIgnoredUsers: {
+        description: "Additionally apply to 'ignored' users",
+        type: OptionType.BOOLEAN,
+        default: true,
+        restartNeeded: false
+    }
+});
 
 export default definePlugin({
     name: "NoBlockedMessages",
-    description: "Hides all blocked messages from chat completely.",
-    authors: [Devs.rushii, Devs.Samu, Devs.F53],
+    description: "Hides all blocked/ignored messages from chat completely",
+    authors: [Devs.rushii, Devs.Samu, Devs.jamesbt365],
+    settings,
+
     patches: [
         {
             find: "#{intl::BLOCKED_MESSAGES_HIDE}",
@@ -51,57 +76,63 @@ export default definePlugin({
             '"ReadStateStore"'
         ].map(find => ({
             find,
-            predicate: () => Settings.plugins.NoBlockedMessages.ignoreBlockedMessages === true,
+            predicate: () => settings.store.ignoreMessages,
             replacement: [
                 {
-                    match: /(?<=MESSAGE_CREATE:function\((\i)\){)/,
-                    replace: (_, props) => `if($self.isBlocked(${props}.message))return;`
+                    match: /(?<=function (\i)\((\i)\){)(?=.*MESSAGE_CREATE:\1)/,
+                    replace: (_, _funcName, props) => `if($self.shouldIgnoreMessage(${props}.message)||$self.isReplyToBlocked(${props}.message))return;`
                 }
             ]
         })),
         {
-            find: ".messageListItem",
-            replacement: {
-                match: /(?<=\i=)(?=\(0,(\i)\.jsx)/,
-                replace: "!$self.isReplyToBlocked(arguments[0].message)&&"
-            }
-        }
-    ],
-    options: {
-        ignoreBlockedMessages: {
-            description: "Completely ignores (recent) incoming messages from blocked users (locally).",
-            type: OptionType.BOOLEAN,
-            default: false,
-            restartNeeded: true,
+            find: "referencedUsernameProfile,referencedAvatarProfile",
+            replacement: [
+                {
+                    match: /CUSTOM_GIFT.*?=(?=\(0,\i.jsx\)\(\i.\i\i)/,
+                    replace: "$&!$self.isReplyToBlocked(arguments[0].message)&&",
+                }
+            ],
         },
-        hideRepliesToBlockedMessages: {
-            description: "Hide replies to messages made by users you've blocked",
-            type: OptionType.BOOLEAN,
-            default: false,
-            restartNeeded: false,
+    ],
+
+    shouldIgnoreMessage(message: Message) {
+        try {
+            if (RelationshipStore.isBlocked(message.author.id)) {
+                return true;
+            }
+            return settings.store.applyToIgnoredUsers && RelationshipStore.isIgnored(message.author.id);
+        } catch (e) {
+            new Logger("NoBlockedMessages").error("Failed to check if user is blocked or ignored:", e);
+            return false;
+        }
+    },
+
+    shouldHide(props: MessageDeleteProps): boolean {
+        try {
+            const collapsedReason = props.collapsedReason();
+            const blockedReason = i18n.t[runtimeHashMessageKey("BLOCKED_MESSAGE_COUNT")]();
+            const ignoredReason = settings.store.applyToIgnoredUsers
+                ? i18n.t[runtimeHashMessageKey("IGNORED_MESSAGE_COUNT")]()
+                : null;
+
+            return collapsedReason === blockedReason || collapsedReason === ignoredReason;
+        } catch (e) {
+            console.error(e);
+            return false;
         }
     },
 
     isReplyToBlocked(message: Message) {
-        if (!Settings.plugins.NoBlockedMessages.hideRepliesToBlockedMessages)
-            return false;
-
-        const { messageReference } = message;
-        if (!messageReference) return false;
-        const replyMessage = MessageStore.getMessage(messageReference.channel_id, messageReference.message_id);
-        return this.isBlocked(replyMessage);
-    },
-
-    isBlocked(message: Message | undefined) {
-        if (!message) return false;
+        if (!settings.store.hideRepliesToBlockedMessages) return false;
         try {
-            return RelationshipStore.isBlocked(message.author.id);
-        } catch (e) {
-            new Logger("NoBlockedMessages").error("Failed to check if user is blocked:", e);
-        }
-    },
+            const { messageReference } = message;
+            if (!messageReference) return false;
 
-    shouldHide(props: MessageDeleteProps) {
-        return !props?.collapsedReason?.message.includes("deleted");
+            const replyMessage = MessageStore.getMessage(messageReference.channel_id, messageReference.message_id);
+
+            return replyMessage ? this.isBlocked(replyMessage) : false;
+        } catch (e) {
+            new Logger("NoBlockedMessages").error("Failed to check if referenced message is blocked:", e);
+        }
     }
 });

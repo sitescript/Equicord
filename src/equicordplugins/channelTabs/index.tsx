@@ -12,6 +12,7 @@ import { Devs, EquicordDevs } from "@utils/constants";
 import definePlugin from "@utils/types";
 import { ChannelStore, Menu } from "@webpack/common";
 import { Channel, Message } from "discord-types/general";
+import { JSX } from "react";
 
 import ChannelsTabsContainer from "./components/ChannelTabsContainer";
 import { BasicChannelTabsProps, createTab, settings } from "./util";
@@ -47,8 +48,8 @@ export default definePlugin({
         {
             find: ".COLLECTIBLES_SHOP_FULLSCREEN))",
             replacement: {
-                match: /(\?void 0:(\i)\.channelId.{0,200})\i\.Fragment,{/,
-                replace: "$1$self.render,{currentChannel:$2,"
+                match: /(\?void 0:(\i)\.channelId.{0,300}return)((.{0,15})"div",{.*?\])(\}\)\}\})/,
+                replace: "$1$4$self.render,{currentChannel:$2,children:$3})$5"
             }
         },
         // ctrl click to open in new tab in inbox unread
@@ -82,14 +83,6 @@ export default definePlugin({
                 match: /\i&&\((\i).maxHeight.{0,5}\)/,
                 replace: "$&;$1.maxHeight-=$self.containerHeight"
             }
-        },
-        // workaround for app directory killing our component, see comments in ChannelTabContainer.tsx
-        {
-            find: ".ApplicationDirectoryEntrypointNames.EXTERNAL",
-            replacement: {
-                match: /(\.guildSettingsSection\).{0,30})},\[/,
-                replace: "$1;$self.onAppDirectoryClose()},["
-            }
         }
     ],
 
@@ -118,11 +111,6 @@ export default definePlugin({
             compact: false
         };
         createTab(tab, false, message.id);
-    },
-
-    onAppDirectoryClose() {
-        this.appDirectoryClosed = true;
-        setTimeout(() => this.appDirectoryClosed = false, 0);
     },
 
     util: ChannelTabsUtils,

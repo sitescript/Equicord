@@ -32,14 +32,14 @@ export default definePlugin({
             }
         },
         {
-            find: '#{intl::SERVERS}"]),children',
+            find: "#{intl::SERVERS}),children",
             replacement: [
                 {
-                    match: /(?<=#{intl::SERVERS}"\]\),children:)\i\.map\(\i\)/,
+                    match: /(?<=#{intl::SERVERS}\),children:)\i\.map\(\i\)/,
                     replace: "Vencord.Api.ServerList.renderAll(Vencord.Api.ServerList.ServerListRenderPosition.In).concat($&)"
                 },
                 {
-                    match: /lastTargetNode.{0,300}\{\}\)\]\}\)\]/,
+                    match: /discoveryIcon\}\)\}\)\]/,
                     replace: "$&.concat(Vencord.Api.ServerList.renderAll(Vencord.Api.ServerList.ServerListRenderPosition.Below))"
                 }
             ]

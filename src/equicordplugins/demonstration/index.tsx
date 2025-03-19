@@ -75,7 +75,7 @@ function handleToggle() {
     const style = document.getElementById("DemonstrationStyle");
     if (style != null) {
         style.remove();
-        playSound("https://files.catbox.moe/wp5rpz.wav");
+        playSound("https://github.com/Equicord/Equibored/raw/main/sounds/demonstration/wp5rpz.wav");
     }
     else {
         if (settings.store.showConfirmationModal) {
@@ -100,14 +100,14 @@ function handleToggle() {
                         onClick={() => {
                             closeModal(key);
                             injectCSS();
-                            playSound("https://files.catbox.moe/ckz46t.wav");
+                            playSound("https://github.com/Equicord/Equibored/raw/main/sounds/demonstration/ckz46t.wav");
                         }}
                     >Okay!</Button>
                 </ModalRoot>
             ));
         } else {
             injectCSS();
-            playSound("https://files.catbox.moe/ckz46t.wav");
+            playSound("https://github.com/Equicord/Equibored/raw/main/sounds/demonstration/ckz46t.wav");
         }
     }
 }
@@ -138,7 +138,7 @@ export default definePlugin({
     settingsAboutComponent: () => {
         return (
             <>
-                <Text>To change your keycode, check out <a href="https://www.toptal.com/developers/keycode" target="_blank">this tool</a>!</Text>
+                <Text>To change your keycode, check out <a href="https://www.toptal.com/developers/keycode" target="_blank" rel="noreferrer noopener">this tool</a>!</Text>
             </>
         );
     },
@@ -147,6 +147,5 @@ export default definePlugin({
     },
     stop() {
         document.removeEventListener("keydown", handleKeydown);
-    },
-
+    }
 });

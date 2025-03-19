@@ -62,7 +62,7 @@ function ReplacementComponent({ module, match, replacement, setReplacementError 
         }
         const canonicalMatch = canonicalizeMatch(new RegExp(match));
         try {
-            const canonicalReplace = canonicalizeReplace(replacement, "YourPlugin");
+            const canonicalReplace = canonicalizeReplace(replacement, 'Vencord.Plugins.plugins["YourPlugin"]');
             var patched = src.replace(canonicalMatch, canonicalReplace as string);
             setReplacementError(void 0);
         } catch (e) {
@@ -108,9 +108,9 @@ function ReplacementComponent({ module, match, replacement, setReplacementError 
     }
 
     function renderDiff() {
-        return diff?.map(p => {
+        return diff?.map((p, idx) => {
             const color = p.added ? "lime" : p.removed ? "red" : "grey";
-            return <div style={{ color, userSelect: "text", wordBreak: "break-all", lineBreak: "anywhere" }}>{p.value}</div>;
+            return <div key={idx} style={{ color, userSelect: "text", wordBreak: "break-all", lineBreak: "anywhere" }}>{p.value}</div>;
         });
     }
 
@@ -244,7 +244,7 @@ function FullPatchInput({ setFind, setParsedFind, setMatch, setReplacement }: Fu
         }
 
         try {
-            const parsed = (0, eval)(`(${fullPatch})`) as Patch;
+            const parsed = (0, eval)(`([${fullPatch}][0])`) as Patch;
 
             if (!parsed.find) throw new Error("No 'find' field");
             if (!parsed.replacement) throw new Error("No 'replacement' field");

@@ -17,6 +17,7 @@
 */
 
 import { Settings } from "@api/Settings";
+import ThemesTab from "@components/ThemeSettings/ThemesTab";
 import BackupAndRestoreTab from "@components/VencordSettings/BackupAndRestoreTab";
 import CloudTab from "@components/VencordSettings/CloudTab";
 import PatchHelperTab from "@components/VencordSettings/PatchHelperTab";
@@ -64,7 +65,8 @@ export default definePlugin({
                     replace: (_, sectionTypes, commaOrSemi, elements, element) => `${commaOrSemi} $self.addSettings(${elements}, ${element}, ${sectionTypes}) ${commaOrSemi}`
                 },
                 {
-                    match: /({(?=.+?function (\i).{0,120}(\i)=\i\.useMemo.{0,60}return \i\.useMemo\(\(\)=>\i\(\3).+?function\(\){return )\2(?=})/,
+                    // FIXME(Bundler change related): Remove old compatiblity once enough time has passed
+                    match: /({(?=.+?function (\i).{0,160}(\i)=\i\.useMemo.{0,140}return \i\.useMemo\(\(\)=>\i\(\3).+?(?:function\(\){return |\(\)=>))\2/,
                     replace: (_, rest, settingsHook) => `${rest}$self.wrapSettingsHook(${settingsHook})`
                 }
             ]
@@ -75,19 +77,6 @@ export default definePlugin({
                 match: /(?<=function\((\i),\i\)\{)(?=let \i=Object.values\(\i.\i\).*?(\i\.\i)\.open\()/,
                 replace: "$2.open($1);return;"
             }
-        },
-        {
-            find: "Unknown resolution:",
-            replacement: [
-                {
-                    match: /throw Error\("Unknown resolution: ".concat\((\i)\)\)/,
-                    replace: "return $1;"
-                },
-                {
-                    match: /throw Error\("Unknown frame rate: ".concat\((\i)\)\)/,
-                    replace: "return $1;"
-                }
-            ]
         }
     ],
 
@@ -103,42 +92,49 @@ export default definePlugin({
             {
                 section: "EquicordSettings",
                 label: "Equicord",
+                searchableTitles: ["Equicord", "Settings", "Equicord Settings"],
                 element: VencordTab,
                 className: "vc-settings"
             },
             {
                 section: "EquicordPlugins",
                 label: "Plugins",
+                searchableTitles: ["Plugins"],
                 element: PluginsTab,
                 className: "vc-plugins"
             },
             {
                 section: "EquicordThemes",
                 label: "Themes",
-                element: require("@components/ThemeSettings/ThemesTab").default,
+                searchableTitles: ["Themes"],
+                element: ThemesTab,
                 className: "vc-themes"
             },
             !IS_UPDATER_DISABLED && {
                 section: "EquicordUpdater",
                 label: "Updater",
+                searchableTitles: ["Updater"],
                 element: UpdaterTab,
                 className: "vc-updater"
             },
             {
                 section: "EquicordCloud",
                 label: "Cloud",
+                searchableTitles: ["Cloud"],
                 element: CloudTab,
                 className: "vc-cloud"
             },
             {
                 section: "EquicordSettingsSync",
                 label: "Backup & Restore",
+                searchableTitles: ["Backup & Restore"],
                 element: BackupAndRestoreTab,
                 className: "vc-backup-restore"
             },
-            {
+            IS_DEV && {
                 section: "EquicordPatchHelper",
                 label: "Patch Helper",
+                searchableTitles: ["Patch Helper"],
                 element: PatchHelperTab,
                 className: "vc-patch-helper"
             },
@@ -169,6 +165,9 @@ export default definePlugin({
                 aboveActivity: getIntlMessage("ACTIVITY_SETTINGS")
             };
 
+            if (!names[settingsLocation] || names[settingsLocation].endsWith("_SETTINGS"))
+                return firstChild === "PREMIUM";
+
             return header === names[settingsLocation];
         } catch {
             return firstChild === "PREMIUM";
@@ -178,7 +177,7 @@ export default definePlugin({
     patchedSettings: new WeakSet(),
 
     addSettings(elements: any[], element: { header?: string; settings: string[]; }, sectionTypes: SectionTypes) {
-        if (this.patchedSettings.has(elements)) return;
+        if (this.patchedSettings.has(elements) || !this.isRightSpot(element)) return;
 
         this.patchedSettings.add(elements);
 
@@ -234,6 +233,7 @@ export default definePlugin({
         if (IS_DEV) return " (Dev)";
         if (IS_WEB) return " (Web)";
         if (IS_VESKTOP) return ` (Vesktop v${VesktopNative.app.getVersion()})`;
+        if (IS_EQUIBOP) return ` (Equibop v${VesktopNative.app.getVersion()})`;
         if (IS_STANDALONE) return " (Standalone)";
         return "";
     },

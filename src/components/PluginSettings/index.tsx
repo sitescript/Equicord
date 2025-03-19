@@ -36,6 +36,7 @@ import { useAwaiter } from "@utils/react";
 import { Plugin } from "@utils/types";
 import { findByPropsLazy } from "@webpack";
 import { Alerts, Button, Card, Flex, Forms, lodash, Parser, React, Select, Text, TextInput, Toasts, Tooltip, useMemo } from "@webpack/common";
+import { JSX } from "react";
 
 import Plugins, { ExcludedPlugins, PluginMeta } from "~plugins";
 
@@ -70,10 +71,7 @@ function ReloadRequiredCard({ required, enabledPlugins, openDisablePluginsModal,
                     <Forms.FormText className={cl("dep-text")}>
                         Restart now to apply new plugins and their settings
                     </Forms.FormText>
-                    <Button
-                        className="vc-restart-button"
-                        onClick={() => location.reload()}
-                    >
+                    <Button className={cl("restart-button")} onClick={() => location.reload()}>
                         Restart
                     </Button>
                 </>
@@ -175,8 +173,8 @@ export function PluginCard({ plugin, disabled, onRestartNeeded, onMouseEnter, on
                     className={classes(ButtonClasses.button, cl("info-button"))}
                 >
                     {plugin.options && !isObjectEmpty(plugin.options)
-                        ? <CogWheel />
-                        : <InfoIcon />}
+                        ? <CogWheel className={cl("info-icon")} />
+                        : <InfoIcon className={cl("info-icon")} />}
                 </button>
             }
         />
@@ -197,8 +195,8 @@ function ExcludedPluginsList({ search }: { search: string; }) {
     const ExcludedReasons: Record<"web" | "discordDesktop" | "vencordDesktop" | "equicordDesktop" | "desktop" | "dev", string> = {
         desktop: "Discord Desktop app or Vesktop",
         discordDesktop: "Discord Desktop app",
-        vencordDesktop: "Vesktop app",
-        equicordDesktop: "Equibop app",
+        vencordDesktop: "Vesktop app & Equibop app",
+        equicordDesktop: "Vesktop app & Equibop app",
         web: "Vesktop & Equibop apps as well as the Web version of Discord",
         dev: "Developer version of Equicord"
     };
@@ -278,7 +276,7 @@ export default function PluginSettings() {
         if (!search.length) return true;
 
         return (
-            plugin.name.toLowerCase().includes(search) ||
+            plugin.name.toLowerCase().includes(search.replace(/\s+/g, "")) ||
             plugin.description.toLowerCase().includes(search) ||
             plugin.tags?.some(t => t.toLowerCase().includes(search))
         );
@@ -551,7 +549,7 @@ function makeDependencyList(deps: string[]) {
     return (
         <React.Fragment>
             <Forms.FormText>This plugin is required by:</Forms.FormText>
-            {deps.map((dep: string) => <Forms.FormText className={cl("dep-text")}>{dep}</Forms.FormText>)}
+            {deps.map((dep: string) => <Forms.FormText key={dep} className={cl("dep-text")}>{dep}</Forms.FormText>)}
         </React.Fragment>
     );
 }

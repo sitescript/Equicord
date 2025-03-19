@@ -23,12 +23,14 @@ export * as Util from "./utils";
 export * as QuickCss from "./utils/quickCss";
 export * as Updater from "./utils/updater";
 export * as Webpack from "./webpack";
+export * as WebpackPatcher from "./webpack/patchWebpack";
 export { PlainSettings, Settings };
 
 import "./utils/quickCss";
 import "./webpack/patchWebpack";
 
 import { openUpdaterModal } from "@components/VencordSettings/UpdaterTab";
+import { Logger } from "@utils/Logger";
 import { StartAt } from "@utils/types";
 
 import { get as dsGet } from "./api/DataStore";
@@ -45,6 +47,37 @@ import { SettingsRouter } from "./webpack/common";
 if (IS_REPORTER) {
     require("./debug/runReporter");
     Settings.plugins.CharacterCounter.enabled = false;
+}
+
+const logger = new Logger("Debug", "#a6d189");
+
+let isFrozen = true;
+const checkInterval = 5000;
+const freezeChecker = setInterval(() => {
+    if (isFrozen) {
+        location.reload();
+    }
+    isFrozen = true;
+}, checkInterval);
+
+function safeInit() {
+    try {
+        startAllPlugins(StartAt.Init);
+        init();
+
+        const originalLoggerInfo = logger.info.bind(logger);
+        logger.info = function (message) {
+            originalLoggerInfo(message);
+            if (message.includes("Completed Equicord initialization.")) {
+                isFrozen = false;
+                clearInterval(freezeChecker);
+            }
+        };
+    } catch (error) {
+        logger.error("Failed to initialize Equicord, reloading in 5 seconds...", error);
+        clearInterval(freezeChecker);
+        setTimeout(() => location.reload(), 5000);
+    }
 }
 
 async function syncSettings() {
@@ -93,6 +126,8 @@ async function init() {
 
     syncSettings();
 
+    logger.info("Completed Equicord initialization.");
+
     if (!IS_WEB && !IS_UPDATER_DISABLED) {
         try {
             const isOutdated = await checkForUpdates();
@@ -100,6 +135,7 @@ async function init() {
 
             if (Settings.autoUpdate) {
                 await update();
+                if (Settings.updateRelaunch) return relaunch;
                 if (Settings.autoUpdateNotification)
                     setTimeout(() => showNotification({
                         title: "Equicord has been updated!",
@@ -137,16 +173,25 @@ async function init() {
     }
 }
 
-startAllPlugins(StartAt.Init);
-init();
+safeInit();
 
 document.addEventListener("DOMContentLoaded", () => {
-    startAllPlugins(StartAt.DOMContentLoaded);
+    try {
+        startAllPlugins(StartAt.DOMContentLoaded);
 
-    if (IS_DISCORD_DESKTOP && Settings.winNativeTitleBar && navigator.platform.toLowerCase().startsWith("win")) {
-        document.head.append(Object.assign(document.createElement("style"), {
-            id: "vencord-native-titlebar-style",
-            textContent: "[class*=titleBar]{display: none!important}"
-        }));
+        if (IS_DISCORD_DESKTOP && Settings.winNativeTitleBar && navigator.platform.toLowerCase().startsWith("win")) {
+            document.head.append(Object.assign(document.createElement("style"), {
+                id: "vencord-native-titlebar-style",
+                textContent: "[class*=titleBar]{display: none!important}"
+            }));
+        }
+
+        isFrozen = false;
+        clearInterval(freezeChecker);
+        logger.info("DOMContentLoaded event handled successfully.");
+    } catch (error) {
+        logger.error("Error during DOMContentLoaded event, reloading in 5 seconds...", error);
+        clearInterval(freezeChecker);
+        setTimeout(() => location.reload(), 5000);
     }
 }, { once: true });

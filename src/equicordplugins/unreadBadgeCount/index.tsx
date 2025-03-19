@@ -8,15 +8,27 @@ import "./styles.css";
 
 import { definePluginSettings } from "@api/Settings";
 import ErrorBoundary from "@components/ErrorBoundary";
-import { Devs } from "@utils/constants";
+import { Devs, EquicordDevs } from "@utils/constants";
 import definePlugin, { OptionType } from "@utils/types";
-import { findByPropsLazy, findStoreLazy } from "@webpack";
+import { findStoreLazy } from "@webpack";
 import { ReadStateStore, useStateFromStores } from "@webpack/common";
 import { Channel } from "discord-types/general";
+import { JSX } from "react";
 
 const UserGuildSettingsStore = findStoreLazy("UserGuildSettingsStore");
 const JoinedThreadsStore = findStoreLazy("JoinedThreadsStore");
-const { NumberBadge } = findByPropsLazy("NumberBadge");
+
+function NumberBadge({ className, count, width, padding }) {
+    // To whoever used svgs here,
+    // Please. svgs bad and buggy unless used as an icon
+    // + The css values are directly copied from discord's ping badge
+    return <div
+        className={className}
+        style={{ minWidth: width, paddingLeft: padding, paddingRight: padding }}
+    >
+        {count}
+    </div>;
+}
 
 const settings = definePluginSettings({
     showOnMutedChannels: {
@@ -39,7 +51,7 @@ const settings = definePluginSettings({
 
 export default definePlugin({
     name: "UnreadCountBadge",
-    authors: [Devs.Joona],
+    authors: [Devs.Joona, EquicordDevs.Panniku],
     description: "Shows unread message count badges on channels in the channel list",
     settings,
 
@@ -49,7 +61,7 @@ export default definePlugin({
             find: "UNREAD_IMPORTANT:",
             replacement: [
                 {
-                    match: /\.name\),.{0,120}\.children.+?:null/,
+                    match: /\.name,{.{0,140}\.children.+?:null/,
                     replace: "$&,$self.CountBadge({channel: arguments[0].channel,})",
                     predicate: () => !settings.store.replaceWhiteDot
                 },
@@ -85,16 +97,29 @@ export default definePlugin({
 
         if (!settings.store.showOnMutedChannels && (UserGuildSettingsStore.isChannelMuted(channel.guild_id, channel.id) || JoinedThreadsStore.isMuted(channel.id)))
             return null;
+
+        // Im not sure if the "dot" ever appends, hence why the css is almost left unmodified for these classes
         const className = `vc-unreadCountBadge${whiteDot ? "-dot" : ""}${channel.threadMetadata ? "-thread" : ""}`;
+
+        let paddingValue: Number = 0;
+        if (unreadCount >= 100) { paddingValue = 4; } else
+            if (unreadCount >= 10) { paddingValue = 2; } else
+                paddingValue = 0;
+        let widthValue = 16;
+        if (unreadCount >= 100) { widthValue = 30; } else
+            if (unreadCount >= 10) { widthValue = 22; } else
+                widthValue = 16;
+
         return (
             <NumberBadge
-                color="var(--brand-500)"
-                className={className}
+                className={"vc-unreadCountBadge " + className}
                 count={
                     unreadCount > 99 && settings.store.notificationCountLimit
                         ? "+99"
                         : unreadCount
                 }
+                width={widthValue}
+                padding={paddingValue}
             />
         );
     }, { noop: true }),

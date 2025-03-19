@@ -17,6 +17,7 @@
 */
 
 import { definePluginSettings } from "@api/Settings";
+import { getUserSettingLazy } from "@api/UserSettings";
 import { Link } from "@components/Link";
 import { Devs } from "@utils/constants";
 import { Logger } from "@utils/Logger";
@@ -81,12 +82,14 @@ const enum NameFormat {
     AlbumName = "album"
 }
 
+const ShowCurrentGame = getUserSettingLazy<boolean>("status", "showCurrentGame")!;
+
 const applicationId = "1108588077900898414";
 const placeholderId = "2a96cbd8b46e442fc41c2b86b821562f";
 
 const logger = new Logger("LastFMRichPresence");
 
-const presenceStore = findByPropsLazy("getLocalPresence");
+const PresenceStore = findByPropsLazy("getLocalPresence");
 
 async function getApplicationAsset(key: string): Promise<string> {
     return (await ApplicationAssetUtils.fetchAssetIds(applicationId, [key]))[0];
@@ -123,6 +126,16 @@ const settings = definePluginSettings({
         description: "hide last.fm presence if spotify is running",
         type: OptionType.BOOLEAN,
         default: true,
+    },
+    hideWithActivity: {
+        description: "Hide Last.fm presence if you have any other presence",
+        type: OptionType.BOOLEAN,
+        default: false,
+    },
+    enableGameActivity: {
+        description: "Enable game activity for last.fm",
+        type: OptionType.BOOLEAN,
+        default: false,
     },
     statusName: {
         description: "custom status text",
@@ -184,6 +197,11 @@ const settings = definePluginSettings({
         description: "show the Last.fm logo by the album cover",
         type: OptionType.BOOLEAN,
         default: true,
+    },
+    alwaysHideArt: {
+        description: "Disable downloading album art",
+        type: OptionType.BOOLEAN,
+        default: false,
     }
 });
 
@@ -266,7 +284,7 @@ export default definePlugin({
     },
 
     getLargeImage(track: TrackData): string | undefined {
-        if (track.imageUrl && !track.imageUrl.includes(placeholderId))
+        if (!settings.store.alwaysHideArt && track.imageUrl && !track.imageUrl.includes(placeholderId))
             return track.imageUrl;
 
         if (settings.store.missingArt === "placeholder")
@@ -274,16 +292,25 @@ export default definePlugin({
     },
 
     async getActivity(): Promise<Activity | null> {
+        if (settings.store.hideWithActivity) {
+            if (PresenceStore.getActivities().some(a => a.application_id !== applicationId)) {
+                return null;
+            }
+        }
+
         if (settings.store.hideWithSpotify) {
-            for (const activity of presenceStore.getActivities()) {
-                if (activity.type === ActivityType.LISTENING && activity.application_id !== applicationId) {
-                    // there is already music status because of Spotify or richerCider (probably more)
-                    return null;
-                }
+            if (PresenceStore.getActivities().some(a => a.type === ActivityType.LISTENING && a.application_id !== applicationId)) {
+                // there is already music status because of Spotify or richerCider (probably more)
+                return null;
             }
         }
 
         const trackData = await this.fetchTrackData();
+        if (settings.store.enableGameActivity && trackData) {
+            ShowCurrentGame.updateSetting(true);
+        } else if (settings.store.enableGameActivity) {
+            ShowCurrentGame.updateSetting(false);
+        }
         if (!trackData) return null;
 
         const largeImage = this.getLargeImage(trackData);

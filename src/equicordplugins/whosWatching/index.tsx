@@ -16,6 +16,7 @@ import definePlugin, { OptionType } from "@utils/types";
 import { findByPropsLazy, findComponentByCodeLazy, findStoreLazy } from "@webpack";
 import { Clickable, Forms, RelationshipStore, Tooltip, UserStore, useStateFromStores } from "@webpack/common";
 import { User } from "discord-types/general";
+import { JSX } from "react";
 
 interface WatchingProps {
     userIds: string[];
@@ -49,8 +50,8 @@ function Watching({ userIds, guildId }: WatchingProps): JSX.Element {
                     <Forms.FormTitle>{getIntlMessage("SPECTATORS", { numViewers: userIds.length })}</Forms.FormTitle>
                     <Flex flexDirection="column" style={{ gap: 6 }} >
                         {users.map(user => (
-                            <Flex flexDirection="row" style={{ gap: 6, alignContent: "center" }} className={cl("user")} >
-                                <img src={user.getAvatarURL(guildId)} style={{ borderRadius: 8, width: 16, height: 16 }} />
+                            <Flex key={user.id} flexDirection="row" style={{ gap: 6, alignContent: "center" }} className={cl("user")} >
+                                <img src={user.getAvatarURL(guildId)} style={{ borderRadius: 8, width: 16, height: 16 }} alt="" />
                                 {getUsername(user)}
                             </Flex>
                         ))}
@@ -117,12 +118,12 @@ export default definePlugin({
         return (
             <>
                 <div {...props}>{props.children}</div>
-                <div className={classes(cl("spectators_panel"), Margins.top8)}>
+                <div className={classes(cl("spectators_panel"), Margins.top8)} style={{ marginLeft: 8 }}>
+                    <Forms.FormTitle tag="h3" style={{ marginTop: 8, marginBottom: 0, textTransform: "uppercase" }}>
+                        {getIntlMessage("SPECTATORS", { numViewers: userIds.length })}
+                    </Forms.FormTitle>
                     {users.length ?
                         <>
-                            <Forms.FormTitle tag="h3" style={{ marginTop: 8, marginBottom: 0, textTransform: "uppercase" }}>
-                                {getIntlMessage("SPECTATORS", { numViewers: userIds.length })}
-                            </Forms.FormTitle>
                             <UserSummaryItem
                                 users={users}
                                 count={userIds.length}
@@ -130,8 +131,9 @@ export default definePlugin({
                                 max={12}
                                 showDefaultAvatarsForNullUsers
                                 renderMoreUsers={renderMoreUsers}
-                                renderUser={(user: User) => (
+                                renderUser={(user: User, index: number) => (
                                     <Clickable
+                                        key={index}
                                         className={AvatarStyles.clickableAvatar}
                                         onClick={() => openUserProfile(user.id)}
                                     >

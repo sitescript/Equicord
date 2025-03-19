@@ -11,13 +11,13 @@ import { Patch } from "@utils/types";
 import { TypeWebpackSearchHistory } from "@webpack";
 
 interface EvaledPatch extends Patch {
-    id: number | string;
+    id: PropertyKey;
 }
 interface ErroredPatch extends EvaledPatch {
     oldModule: string,
     newModule: string;
 }
-interface ReporterData {
+export interface ReporterData {
     failedPatches: {
         foundNoModule: Patch[];
         hadNoEffect: EvaledPatch[];

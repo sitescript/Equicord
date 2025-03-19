@@ -20,7 +20,7 @@ import {
     findGroupChildrenByChildId,
     NavContextMenuPatchCallback
 } from "@api/ContextMenu";
-import { definePluginSettings, migratePluginSettings } from "@api/Settings";
+import { definePluginSettings } from "@api/Settings";
 import { CogWheel } from "@components/Icons";
 import { Devs } from "@utils/constants";
 import definePlugin, { OptionType } from "@utils/types";
@@ -77,6 +77,11 @@ const settings = definePluginSettings({
         description: "Show all channels automatically",
         type: OptionType.BOOLEAN,
         default: true
+    },
+    mobilePush: {
+        description: "Mute Mobile Push Notifications automatically",
+        type: OptionType.BOOLEAN,
+        default: true
     }
 });
 
@@ -99,6 +104,7 @@ function applyDefaultSettings(guildId: string | null) {
     updateGuildNotificationSettings(guildId,
         {
             muted: settings.store.guild,
+            mobile_push: !settings.store.mobilePush,
             suppress_everyone: settings.store.everyone,
             suppress_roles: settings.store.role,
             mute_scheduled_events: settings.store.events,
@@ -115,8 +121,6 @@ function applyDefaultSettings(guildId: string | null) {
     }
 }
 
-
-migratePluginSettings("NewGuildSettings", "MuteNewGuild");
 export default definePlugin({
     name: "NewGuildSettings",
     description: "Automatically mute new servers and change various other settings upon joining",

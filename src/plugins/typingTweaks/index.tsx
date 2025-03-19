@@ -16,13 +16,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { definePluginSettings } from "@api/Settings";
+import { definePluginSettings, Settings } from "@api/Settings";
 import ErrorBoundary from "@components/ErrorBoundary";
+import { getCustomColorString } from "@equicordplugins/customUserColors";
 import { Devs } from "@utils/constants";
 import { openUserProfile } from "@utils/discord";
 import definePlugin, { OptionType } from "@utils/types";
 import { Avatar, GuildMemberStore, React, RelationshipStore } from "@webpack/common";
 import { User } from "discord-types/general";
+import { PropsWithChildren } from "react";
 
 const settings = definePluginSettings({
     showAvatars: {
@@ -56,6 +58,12 @@ interface Props {
     guildId: string;
 }
 
+function typingUserColor(guildId: string, userId: string) {
+    if (!settings.store.showRoleColors) return;
+    const customColor = Settings.plugins.CustomUserColors.enabled ? getCustomColorString(userId, true) : null;
+    return customColor ?? GuildMemberStore.getMember(guildId, userId)?.colorString;
+}
+
 const TypingUser = ErrorBoundary.wrap(function ({ user, guildId }: Props) {
     return (
         <strong
@@ -64,15 +72,15 @@ const TypingUser = ErrorBoundary.wrap(function ({ user, guildId }: Props) {
                 openUserProfile(user.id);
             }}
             style={{
-                display: "grid",
-                gridAutoFlow: "column",
+                display: "flex",
+                alignItems: "center",
                 gap: "4px",
-                color: settings.store.showRoleColors ? GuildMemberStore.getMember(guildId, user.id)?.colorString : undefined,
+                color: typingUserColor(guildId, user.id),
                 cursor: "pointer"
             }}
         >
             {settings.store.showAvatars && (
-                <div style={{ marginTop: "4px" }}>
+                <div>
                     <Avatar
                         size="SIZE_16"
                         src={user.getAvatarURL(guildId, 128)} />
@@ -91,34 +99,31 @@ export default definePlugin({
     name: "TypingTweaks",
     description: "Show avatars and role colours in the typing indicator",
     authors: [Devs.zt],
+    settings,
+
     patches: [
-        // Style the indicator and add function call to modify the children before rendering
         {
-            find: "getCooldownTextStyle",
-            replacement: {
-                match: /(?<=children:\[(\i)\.length>0.{0,200}?"aria-atomic":!0,children:)\i/,
-                replace: "$self.mutateChildren(this.props, $1, $&), style: $self.TYPING_TEXT_STYLE"
-            }
-        },
-        // Changes the indicator to keep the user object when creating the list of typing users
-        {
-            find: "getCooldownTextStyle",
-            replacement: {
-                match: /(?<=map\(\i=>)\i\.\i\.getName\(\i,this\.props\.channel\.id,(\i)\)/,
-                replace: "$1"
-            }
-        },
-        // Adds the alternative formatting for several users typing
-        {
-            find: "getCooldownTextStyle",
-            replacement: {
-                match: /(,{a:(\i),b:(\i),c:\i}\):)\i\.\i\.string\(\i\.\i#{intl::SEVERAL_USERS_TYPING}\)(?<=(\i)\.length.+?)/,
-                replace: (_, rest, a, b, users) => `${rest}$self.buildSeveralUsers({ a: ${a}, b: ${b}, count: ${users}.length - 2 })`
-            },
-            predicate: () => settings.store.alternativeFormatting
+            find: "#{intl::THREE_USERS_TYPING}",
+            replacement: [
+                {
+                    // Style the indicator and add function call to modify the children before rendering
+                    match: /(?<=children:\[(\i)\.length>0.{0,200}?"aria-atomic":!0,children:)\i(?<=guildId:(\i).+?)/,
+                    replace: "$self.renderTypingUsers({ users: $1, guildId: $2, children: $& }),style:$self.TYPING_TEXT_STYLE"
+                },
+                {
+                    // Changes the indicator to keep the user object when creating the list of typing users
+                    match: /\.map\((\i)=>\i\.\i\.getName\(\i,\i\.id,\1\)\)/,
+                    replace: ""
+                },
+                {
+                    // Adds the alternative formatting for several users typing
+                    match: /(,{a:(\i),b:(\i),c:\i}\):\i\.length>3&&\(\i=)\i\.\i\.string\(\i\.\i#{intl::SEVERAL_USERS_TYPING}\)(?<=(\i)\.length.+?)/,
+                    replace: (_, rest, a, b, users) => `${rest}$self.buildSeveralUsers({ a: ${a}, b: ${b}, count: ${users}.length - 2 })`,
+                    predicate: () => settings.store.alternativeFormatting
+                }
+            ]
         }
     ],
-    settings,
 
     TYPING_TEXT_STYLE: {
         display: "grid",
@@ -128,15 +133,25 @@ export default definePlugin({
 
     buildSeveralUsers,
 
-    mutateChildren(props: any, users: User[], children: any) {
-        if (!Array.isArray(children)) return children;
+    renderTypingUsers: ErrorBoundary.wrap(({ guildId, users, children }: PropsWithChildren<{ guildId: string, users: User[]; }>) => {
+        try {
+            if (!Array.isArray(children)) {
+                return children;
+            }
 
-        let element = 0;
+            let element = 0;
 
-        return children.map(c =>
-            c.type === "strong"
-                ? <TypingUser {...props} user={users[element++]} />
-                : c
-        );
-    }
+            return children.map(c => {
+                if (c.type !== "strong" && !(typeof c !== "string" && !React.isValidElement(c)))
+                    return c;
+
+                const user = users[element++];
+                return <TypingUser key={user.id} guildId={guildId} user={user} />;
+            });
+        } catch (e) {
+            console.error(e);
+        }
+
+        return children;
+    }, { noop: true })
 });

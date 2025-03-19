@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { addDecoration, removeDecoration } from "@api/MessageDecorations";
+import { addMessageDecoration, removeMessageDecoration } from "@api/MessageDecorations";
 import { Devs, EquicordDevs } from "@utils/constants";
 import { isEquicordPluginDev, isPluginDev } from "@utils/misc";
 import definePlugin from "@utils/types";
@@ -15,6 +15,7 @@ const RoleIconComponent = findComponentByCodeLazy("#{intl::ROLE_ICON_ALT_TEXT}")
 import "./styles.css";
 
 import { User } from "discord-types/general";
+import { JSX } from "react";
 
 import settings from "./settings";
 
@@ -41,6 +42,7 @@ function CheckBadge({ badge, author }: { badge: string; author: User; }): JSX.El
                 <span style={{ order: settings.store.EquicordDonorPosition }}>
                     {badges.getEquicordDonorBadges(author.id)?.map((badge: any) => (
                         <RoleIconComponent
+                            key={author.id}
                             className={roleIconClassName}
                             name={badge.description}
                             size={20}
@@ -65,6 +67,7 @@ function CheckBadge({ badge, author }: { badge: string; author: User; }): JSX.El
                 <span style={{ order: settings.store.VencordDonorPosition }}>
                     {badges.getDonorBadges(author.id)?.map(badge => (
                         <RoleIconComponent
+                            key={author.id}
                             className={roleIconClassName}
                             name={badge.description}
                             size={20}
@@ -90,6 +93,7 @@ function CheckBadge({ badge, author }: { badge: string; author: User; }): JSX.El
                 .map(badge => (
 
                     <RoleIconComponent
+                        key={author.id}
                         className={roleIconClassName}
                         name={badge[1]}
                         size={20}
@@ -141,9 +145,9 @@ export default definePlugin({
     dependencies: ["MessageDecorationsAPI"],
     settings,
     start: () => {
-        addDecoration("vc-show-badges-in-chat", props => props.message?.author ? <ChatBadges author={props.message.author} /> : null);
+        addMessageDecoration("vc-show-badges-in-chat", props => props.message?.author ? <ChatBadges author={props.message.author} /> : null);
     },
     stop: () => {
-        removeDecoration("vc-show-badges-in-chat");
+        removeMessageDecoration("vc-show-badges-in-chat");
     }
 });

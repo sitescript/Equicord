@@ -41,18 +41,18 @@ export default definePlugin({
         },
         {
             // Status emojis
-            find: "#{intl::GUILD_OWNER}",
+            find: "#{intl::GUILD_OWNER}),children:",
             replacement: {
-                match: /(?<=\.activityEmoji,.+?animate:)\i/,
-                replace: "!0"
+                match: /(\.CUSTOM_STATUS.+?animate:)\i/,
+                replace: (_, rest) => `${rest}!0`
             }
         },
         {
             // Guild Banner
             find: ".animatedBannerHoverLayer,onMouseEnter:",
             replacement: {
-                match: /(?<=guildBanner:\i,animate:)\i(?=}\))/,
-                replace: "!0"
+                match: /animate:\i(?=}\))/,
+                replace: "animate:!0"
             }
         }
     ]

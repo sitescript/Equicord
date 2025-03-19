@@ -16,23 +16,27 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import "./fixDiscordBadgePadding.css";
+
 import { _getBadges, BadgePosition, BadgeUserArgs, ProfileBadge } from "@api/Badges";
 import DonateButton from "@components/DonateButton";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Flex } from "@components/Flex";
 import { Heart } from "@components/Heart";
 import { openContributorModal } from "@components/PluginSettings/ContributorModal";
+import { isEquicordDonor } from "@components/VencordSettings/VencordTab";
 import { Devs } from "@utils/constants";
 import { Logger } from "@utils/Logger";
 import { Margins } from "@utils/margins";
 import { isEquicordPluginDev, isPluginDev } from "@utils/misc";
-import { closeModal, Modals, openModal } from "@utils/modal";
+import { closeModal, ModalContent, ModalFooter, ModalHeader, ModalRoot, openModal } from "@utils/modal";
 import definePlugin from "@utils/types";
 import { Forms, Toasts, UserStore } from "@webpack/common";
 import { User } from "discord-types/general";
 
 const CONTRIBUTOR_BADGE = "https://vencord.dev/assets/favicon.png";
 const EQUICORD_CONTRIBUTOR_BADGE = "https://i.imgur.com/57ATLZu.png";
+const EQUICORD_DONOR_BADGE = "https://cdn.nest.rip/uploads/78cb1e77-b7a6-4242-9089-e91f866159bf.png";
 
 const ContributorBadge: ProfileBadge = {
     description: "Vencord Contributor",
@@ -50,6 +54,17 @@ const EquicordContributorBadge: ProfileBadge = {
     onClick: (_, { userId }) => openContributorModal(UserStore.getUser(userId))
 };
 
+const EquicordDonorBadge: ProfileBadge = {
+    description: "Equicord Donor",
+    image: EQUICORD_DONOR_BADGE,
+    position: BadgePosition.START,
+    shouldShow: ({ userId }) => {
+        const donorBadges = EquicordDonorBadges[userId]?.map(badge => badge.badge);
+        const hasDonorBadge = donorBadges?.includes("https://cdn.nest.rip/uploads/78cb1e77-b7a6-4242-9089-e91f866159bf.png");
+        return isEquicordDonor(userId) && !hasDonorBadge;
+    }
+};
+
 let DonorBadges = {} as Record<string, Array<Record<"tooltip" | "badge", string>>>;
 let EquicordDonorBadges = {} as Record<string, Array<Record<"tooltip" | "badge", string>>>;
 
@@ -62,7 +77,7 @@ async function loadBadges(url: string, noCache = false) {
 
 async function loadAllBadges(noCache = false) {
     const vencordBadges = await loadBadges("https://badges.vencord.dev/badges.json", noCache);
-    const equicordBadges = await loadBadges("https://raw.githubusercontent.com/Equicord/Equibored/main/badges.json", noCache);
+    const equicordBadges = await loadBadges("https://equicord.org/badges", noCache);
 
     DonorBadges = vencordBadges;
     EquicordDonorBadges = equicordBadges;
@@ -78,27 +93,25 @@ export default definePlugin({
         {
             find: ".FULL_SIZE]:26",
             replacement: {
-                match: /(?<=(\i)=\(0,\i\.\i\)\(\i\);)return 0===\i.length\?/,
-                replace: "$1.unshift(...$self.getBadges(arguments[0].displayProfile));$&"
+                match: /(?=;return 0===(\i)\.length\?)(?<=(\i)\.useMemo.+?)/,
+                replace: ";$1=$2.useMemo(()=>[...$self.getBadges(arguments[0].displayProfile),...$1],[$1])"
             }
         },
         {
-            find: ".description,delay:",
+            find: "#{intl::PROFILE_USER_BADGES}",
             replacement: [
                 {
-                    // alt: "", aria-hidden: false, src: originalSrc
-                    match: /alt:" ","aria-hidden":!0,src:(?=.{0,20}(\i)\.icon)/,
-                    // ...badge.props, ..., src: badge.image ?? ...
-                    replace: "...$1.props,$& $1.image??"
+                    match: /(alt:" ","aria-hidden":!0,src:)(.+?)(?=,)(?<=href:(\i)\.link.+?)/,
+                    replace: (_, rest, originalSrc, badge) => `...${badge}.props,${rest}${badge}.image??(${originalSrc})`
                 },
                 {
-                    match: /(?<=text:(\i)\.description,.{0,200})children:/,
-                    replace: "children:$1.component ? $self.renderBadgeComponent({ ...$1 }) :"
+                    match: /(?<="aria-label":(\i)\.description,.{0,200})children:/,
+                    replace: "children:$1.component?$self.renderBadgeComponent({...$1}) :"
                 },
                 // conditionally override their onClick with badge.onClick if it exists
                 {
                     match: /href:(\i)\.link/,
-                    replace: "...($1.onClick && { onClick: vcE => $1.onClick(vcE, $1) }),$&"
+                    replace: "...($1.onClick&&{onClick:vcE=>$1.onClick(vcE,$1)}),$&"
                 }
             ]
         }
@@ -116,8 +129,9 @@ export default definePlugin({
     },
 
     async start() {
-        Vencord.Api.Badges.addBadge(ContributorBadge);
-        Vencord.Api.Badges.addBadge(EquicordContributorBadge);
+        Vencord.Api.Badges.addProfileBadge(ContributorBadge);
+        Vencord.Api.Badges.addProfileBadge(EquicordContributorBadge);
+        Vencord.Api.Badges.addProfileBadge(EquicordDonorBadge);
         await loadAllBadges();
     },
 
@@ -157,8 +171,8 @@ export default definePlugin({
                         closeModal(modalKey);
                         VencordNative.native.openExternal("https://github.com/sponsors/Vendicated");
                     }}>
-                        <Modals.ModalRoot {...props}>
-                            <Modals.ModalHeader>
+                        <ModalRoot {...props}>
+                            <ModalHeader>
                                 <Flex style={{ width: "100%", justifyContent: "center" }}>
                                     <Forms.FormTitle
                                         tag="h2"
@@ -172,8 +186,8 @@ export default definePlugin({
                                         Vencord Donor
                                     </Forms.FormTitle>
                                 </Flex>
-                            </Modals.ModalHeader>
-                            <Modals.ModalContent>
+                            </ModalHeader>
+                            <ModalContent>
                                 <Flex>
                                     <img
                                         role="presentation"
@@ -196,13 +210,13 @@ export default definePlugin({
                                         Please consider supporting the development of Vencord by becoming a donor. It would mean a lot!
                                     </Forms.FormText>
                                 </div>
-                            </Modals.ModalContent>
-                            <Modals.ModalFooter>
+                            </ModalContent>
+                            <ModalFooter>
                                 <Flex style={{ width: "100%", justifyContent: "center" }}>
                                     <DonateButton />
                                 </Flex>
-                            </Modals.ModalFooter>
-                        </Modals.ModalRoot>
+                            </ModalFooter>
+                        </ModalRoot>
                     </ErrorBoundary>
                 ));
             },
@@ -227,8 +241,8 @@ export default definePlugin({
                         // Will get my own in the future
                         VencordNative.native.openExternal("https://github.com/sponsors/Vendicated");
                     }}>
-                        <Modals.ModalRoot {...props}>
-                            <Modals.ModalHeader>
+                        <ModalRoot {...props}>
+                            <ModalHeader>
                                 <Flex style={{ width: "100%", justifyContent: "center" }}>
                                     <Forms.FormTitle
                                         tag="h2"
@@ -242,8 +256,8 @@ export default definePlugin({
                                         Equicord Donor
                                     </Forms.FormTitle>
                                 </Flex>
-                            </Modals.ModalHeader>
-                            <Modals.ModalContent>
+                            </ModalHeader>
+                            <ModalContent>
                                 <Flex>
                                     <img
                                         role="presentation"
@@ -266,13 +280,13 @@ export default definePlugin({
                                         Please consider supporting the development of Equicord by becoming a donor. It would mean a lot! :3
                                     </Forms.FormText>
                                 </div>
-                            </Modals.ModalContent>
-                            <Modals.ModalFooter>
+                            </ModalContent>
+                            <ModalFooter>
                                 <Flex style={{ width: "100%", justifyContent: "center" }}>
                                     <DonateButton />
                                 </Flex>
-                            </Modals.ModalFooter>
-                        </Modals.ModalRoot>
+                            </ModalFooter>
+                        </ModalRoot>
                     </ErrorBoundary>
                 ));
             },

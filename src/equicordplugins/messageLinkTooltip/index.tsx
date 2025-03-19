@@ -1,6 +1,6 @@
 /*
  * Vencord, a Discord client mod
- * Copyright (c) 2024 Vendicated and contributors
+ * Copyright (c) 2025 Vendicated and contributors
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
@@ -10,35 +10,10 @@ import { definePluginSettings } from "@api/Settings";
 import { getUserSettingLazy } from "@api/UserSettings";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Devs } from "@utils/constants";
-import { proxyLazy } from "@utils/lazy";
 import definePlugin, { OptionType } from "@utils/types";
 import { findComponentByCodeLazy } from "@webpack";
-import { ChannelStore, Constants, Forms, MessageStore, RestAPI, Tooltip, useEffect, useState, useStateFromStores } from "@webpack/common";
-import type { ComponentType, HTMLAttributes } from "react";
-
-declare enum SpinnerTypes {
-    WANDERING_CUBES = "wanderingCubes",
-    CHASING_DOTS = "chasingDots",
-    PULSING_ELLIPSIS = "pulsingEllipsis",
-    SPINNING_CIRCLE = "spinningCircle",
-    SPINNING_CIRCLE_SIMPLE = "spinningCircleSimple",
-    LOW_MOTION = "lowMotion",
-}
-
-type Spinner = ComponentType<Omit<HTMLAttributes<HTMLDivElement>, "children"> & {
-    type?: SpinnerTypes;
-    animated?: boolean;
-    className?: string;
-    itemClassName?: string;
-    "aria-label"?: string;
-}> & {
-    Type: typeof SpinnerTypes;
-};
-
-const { Spinner } = proxyLazy(() => Forms as any as {
-    Spinner: Spinner,
-    SpinnerTypes: typeof SpinnerTypes;
-});
+import { ChannelStore, Constants, MessageStore, RestAPI, Tooltip, useEffect, useState, useStateFromStores } from "@webpack/common";
+import type { ComponentType } from "react";
 
 const MessageDisplayCompact = getUserSettingLazy("textAndImages", "messageDisplayCompact")!;
 
@@ -104,7 +79,7 @@ export default definePlugin({
             find: "#{intl::REPLY_QUOTE_MESSAGE_NOT_LOADED}",
             replacement: {
                 // Should match two places
-                match: /(\i\.Clickable),\{/g,
+                match: /(\i\.\i),\{(?=className:\i\(\)\(\i\.repliedTextPreview,\i\.clickable)/g,
                 replace: "$self.ReplyTooltip,{Component:$1,vcProps:arguments[0],"
             },
             predicate: () => settings.store.onReply,
@@ -112,7 +87,7 @@ export default definePlugin({
         {
             find: "#{intl::MESSAGE_FORWARDED}",
             replacement: {
-                match: /(\i\.Clickable),\{/,
+                match: /(\i\.\i),\{(?=className:\i\.footerContainer)/g,
                 replace: "$self.ForwardTooltip,{Component:$1,vcProps:arguments[0],"
             },
             predicate: () => settings.store.onForward,
@@ -145,10 +120,11 @@ function withTooltip(Component, props, messageId, channelId) {
                     messageId={messageId}
                 />
             </ErrorBoundary>
-        }
-        children={({ onMouseEnter, onMouseLeave }) =>
-            <Component {...props} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave} />}
-    />;
+        }>
+        {({ onMouseEnter, onMouseLeave }) => (
+            <Component {...props} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave} />
+        )}
+    </Tooltip>;
 }
 
 function MessagePreview({ channelId, messageId }) {
@@ -158,9 +134,8 @@ function MessagePreview({ channelId, messageId }) {
 
     const compact = settings.store.display === "compact" ? true : settings.store.display === "cozy" ? false : rawCompact;
 
-    // TODO handle load failure
     if (!message) {
-        return <Spinner type={Spinner.Type.PULSING_ELLIPSIS} />;
+        return <span>Loading...</span>;
     }
 
     return <ChannelMessage

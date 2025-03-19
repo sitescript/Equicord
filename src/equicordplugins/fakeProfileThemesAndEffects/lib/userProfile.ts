@@ -5,7 +5,7 @@
  */
 
 import { settings } from "..";
-import { decodeColor, decodeColorsLegacy, decodeEffect, extractFPTE } from ".";
+import { decodeColor, decodeColorsLegacy, decodeEffect, extractFPTE } from "./fpte";
 
 export interface UserProfile {
     bio: string;

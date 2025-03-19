@@ -4,15 +4,14 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { addChatBarButton, ChatBarButton } from "@api/ChatButtons";
+import { addChatBarButton, ChatBarButton, ChatBarButtonFactory, removeChatBarButton } from "@api/ChatButtons";
 import {
     ApplicationCommandInputType,
     ApplicationCommandOptionType,
     sendBotMessage,
 } from "@api/Commands";
 import * as DataStore from "@api/DataStore";
-import { addPreSendListener, removePreSendListener, SendListener } from "@api/MessageEvents";
-import { removeButton } from "@api/MessagePopover";
+import { addMessagePreSendListener, MessageSendListener, removeMessagePreSendListener } from "@api/MessageEvents";
 import { Devs } from "@utils/constants";
 import { sleep } from "@utils/misc";
 import definePlugin from "@utils/types";
@@ -42,12 +41,12 @@ interface IMessageCreate {
     message: Message;
 }
 
-const ChatBarIcon: ChatBarButton = ({ isMainChat }) => {
+const ChatBarIcon: ChatBarButtonFactory = ({ isMainChat }) => {
     [enabled, setEnabled] = useState(false);
     const [buttonDisabled, setButtonDisabled] = useState(false);
 
     useEffect(() => {
-        const listener: SendListener = async (_, message) => {
+        const listener: MessageSendListener = async (_, message) => {
             if (enabled) {
                 const groupChannel = await DataStore.get("encryptcordChannelId");
                 // @ts-expect-error typing issue
@@ -73,8 +72,8 @@ const ChatBarIcon: ChatBarButton = ({ isMainChat }) => {
             }
         };
 
-        addPreSendListener(listener);
-        return () => void removePreSendListener(listener);
+        addMessagePreSendListener(listener);
+        return () => void removeMessagePreSendListener(listener);
     }, [enabled]);
 
     if (!isMainChat) return null;
@@ -273,7 +272,7 @@ export default definePlugin({
         await DataStore.set("encryptcordGroupMembers", {});
     },
     async stop() {
-        removeButton("Encryptcord");
+        removeChatBarButton("Encryptcord");
         if (await DataStore.get("encryptcordGroup") === true) {
             await leave("", { channel: { id: await DataStore.get("encryptcordChannelId") } });
         }

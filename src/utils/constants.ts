@@ -16,14 +16,30 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-export const WEBPACK_CHUNK = "webpackChunkdiscord_app";
 export const REACT_GLOBAL = "Vencord.Webpack.Common.React";
+
+// Equicord
 export const SUPPORT_CHANNEL_ID = "1297590739911573585";
-export const VC_SUPPORT_CHANNEL_ID = "1026515880080842772";
-export const SUPPORT_CHANNEL_IDS = [SUPPORT_CHANNEL_ID, VC_SUPPORT_CHANNEL_ID];
 export const GUILD_ID = "1173279886065029291";
+export const DONOR_ROLE_ID = "1173316879083896912";
+export const CONTRIB_ROLE_ID = "1222677964760682556";
+export const EQUICORD_TEAM = "1173520023239786538";
+export const EQUIBOP_CONTRIB_ROLE_ID = "1287079931645263968";
+export const VENCORD_CONTRIB_ROLE_ID = "1173343399470964856";
+
+// Vencord
+export const VC_SUPPORT_CHANNEL_ID = "1026515880080842772";
 export const VC_GUILD_ID = "1015060230222131221";
+export const VENBOT_USER_ID = "1017176847865352332";
+export const VC_DONOR_ROLE_ID = "1042507929485586532";
+export const VC_CONTRIB_ROLE_ID = "1026534353167208489";
+export const VC_REGULAR_ROLE_ID = "1026504932959977532";
+export const VC_KNOWN_ISSUES_CHANNEL_ID = "1222936386626129920";
+
 export const GUILD_IDS = [GUILD_ID, VC_GUILD_ID];
+export const SUPPORT_CHANNEL_IDS = [SUPPORT_CHANNEL_ID, VC_SUPPORT_CHANNEL_ID];
+export const DONOR_ROLE_IDS = [DONOR_ROLE_ID, VC_DONOR_ROLE_ID];
+export const CONTRIB_ROLE_IDS = [CONTRIB_ROLE_ID, EQUIBOP_CONTRIB_ROLE_ID, VENCORD_CONTRIB_ROLE_ID, VC_CONTRIB_ROLE_ID];
 
 export interface Dev {
     name: string;
@@ -276,10 +292,6 @@ export const Devs = /* #__PURE__*/ Object.freeze({
         name: "arHSM",
         id: 841509053422632990n
     },
-    F53: {
-        name: "Cassie (Code)",
-        id: 280411966126948353n
-    },
     AutumnVN: {
         name: "AutumnVN",
         id: 393694671383166998n
@@ -529,7 +541,7 @@ export const Devs = /* #__PURE__*/ Object.freeze({
         id: 721717126523781240n
     },
     nyx: {
-        name: "verticalsync",
+        name: "verticalsync.",
         id: 1207087393929171095n
     },
     nekohaxx: {
@@ -584,6 +596,18 @@ export const Devs = /* #__PURE__*/ Object.freeze({
         name: "RamziAH",
         id: 1279957227612147747n
     },
+    SomeAspy: {
+        name: "SomeAspy",
+        id: 516750892372852754n
+    },
+    jamesbt365: {
+        name: "jamesbt365",
+        id: 158567567487795200n,
+    },
+    samsam: {
+        name: "samsam",
+        id: 836452332387565589n,
+    },
 } satisfies Record<string, Dev>);
 
 export const EquicordDevs = Object.freeze({
@@ -605,7 +629,7 @@ export const EquicordDevs = Object.freeze({
     },
     Cortex: {
         name: "Cortex",
-        id: 825069530376044594n
+        id: 913205935319691335n
     },
     KrystalSkull: {
         name: "krystalskullofficial",
@@ -743,10 +767,6 @@ export const EquicordDevs = Object.freeze({
         name: "Prince527",
         id: 364105797162237952n
     },
-    unstream: {
-        name: "Unstream",
-        id: 1125315673829154837n
-    },
     ThePirateStoner: {
         name: "ThePirateStoner",
         id: 1196220620376121381n
@@ -794,6 +814,10 @@ export const EquicordDevs = Object.freeze({
     Hen: {
         name: "Hen",
         id: 279266228151779329n
+    },
+    Crxa: {
+        name: "Crxa",
+        id: 920290194886914069n
     },
     vmohammad: {
         name: "vMohammad",
@@ -943,6 +967,74 @@ export const EquicordDevs = Object.freeze({
     nvhhr: {
         name: "nvhhr",
         id: 165098921071345666n
+    },
+    Z1xus: {
+        name: "Z1xus",
+        id: 377450600797044746n
+    },
+    Oggetto: {
+        name: "Oggetto",
+        id: 619203349954166804n
+    },
+    zyqunix: {
+        name: "zyqunix",
+        id: 1201415921802170388n
+    },
+    examplegit: {
+        name: "example.user",
+        id: 175411535357673473n
+    },
+    Loukios: {
+        name: "Loukios",
+        id: 211461918127292416n
+    },
+    vappstar: {
+        name: "vappstar",
+        id: 747192967311261748n
+    },
+    voidbbg: {
+        name: "voidbbg",
+        id: 117126234588184582n
+    },
+    OIRNOIR: {
+        name: "OIRNOIR",
+        id: 720842469024989195n
+    },
+    mochienya: {
+        name: "mochie",
+        id: 1043599230247374869n,
+    },
+    okiso: {
+        name: "okiso",
+        id: 274178934143451137n,
+    },
+    port22exposed: {
+        name: "port",
+        id: 1318383159645311009n,
+    },
+    PhoenixAceVFX: {
+        name: "PhoenixAceVFX",
+        id: 1016895892055396484n,
+    },
+    TheArmagan: {
+        name: "TheArmagan",
+        id: 707309693449535599n
+    },
+    seth: {
+        name: "S€th",
+        id: 1273447359417942128n
+    },
+    SteelTech: {
+        name: "SteelTech",
+        id: 1344190786476183643n
+    },
+    talhakf: {
+        name: "talhakf",
+        id: 1140716160560676976n
+    },
+    omaw: {
+        name: "omaw",
+        id: 1155026301791514655n
     },
 } satisfies Record<string, Dev>);
 

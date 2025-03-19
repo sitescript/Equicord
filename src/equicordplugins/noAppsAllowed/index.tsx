@@ -14,10 +14,10 @@ export default definePlugin({
 
     patches: [
         {
-            find: "BOT:default:",
+            find: "#{intl::APP_TAG::hash}\":",
             replacement: {
-                match: /(default:\i)=.{0,30}\)/,
-                replace: "$1=\"BOT\""
+                match: /(#{intl::APP_TAG::hash}"):".*?"/,
+                replace: '$1:"BOT"'
             }
         }
     ],

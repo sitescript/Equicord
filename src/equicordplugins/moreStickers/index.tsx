@@ -32,21 +32,21 @@ export default definePlugin({
 
     patches: [
         {
-            find: "#{intl::STICKER_BUTTON_LABEL},",
+            find: "ChannelStickerPickerButton",
             replacement: [{
-                match: /(children:\(0,\w\.jsx\)\()([\w.]+?)(,{innerClassName.{10,30}\.stickerButton)/,
+                match: /(children:\(0,\i\.jsx\)\()(.{0,10})({innerClassName.{10,30}\.stickerButton)/,
                 replace: (_, head, button, tail) => {
                     const isMoreStickers = "arguments[0]?.stickersType";
                     return `${head}${isMoreStickers}?$self.stickerButton:${button}${tail}`;
                 }
             }, {
-                match: /(\w=)(\w\.useCallback\(\(\)=>\{\(0,\w+\.\w+\)\([\w.]*?\.STICKER,.*?);/,
+                match: /(\i=)(\i\.useCallback.{0,25}\.STICKER,.{0,10});/,
                 replace: (_, decl, cb) => {
                     const newCb = cb.replace(/(?<=\(\)=>\{\(.*?\)\().+?\.STICKER/, "\"stickers+\"");
                     return `${decl}arguments[0]?.stickersType?${newCb}:${cb};`;
                 }
             }, {
-                match: /(\w)=((\w)===\w+?\.\w+?\.STICKER)/,
+                match: /(\i)=((\i)===\i\.\i\.STICKER)/,
                 replace: (_, isActive, isStickerTab, currentTab) => {
                     const c = "arguments[0].stickersType";
                     return `${isActive}=${c}?(${currentTab}===${c}):(${isStickerTab})`;
@@ -56,7 +56,7 @@ export default definePlugin({
         {
             find: ".gifts)",
             replacement: {
-                match: /,\(null===\(\w=\w\.stickers\)\|\|void 0.*?(\w)\.push\((\(0,\w\.jsx\))\((.+?),{disabled:\w,type:(\w)},"sticker"\)\)/,
+                match: /,.{0,5}\(null===\(\w=\w\.stickers\)\|\|void 0.*?(\w)\.push\((\(0,\w\.jsx\))\((.+?),{disabled:\w,type:(\w)},"sticker"\)\)\)/,
                 replace: (m, _, jsx, compo, type) => {
                     const c = "arguments[0].type";
                     return `${m},${c}?.submit?.button&&${_}.push(${jsx}(${compo},{disabled:!${c}?.submit?.button,type:${type},stickersType:"stickers+"},"stickers+"))`;
@@ -64,11 +64,11 @@ export default definePlugin({
             }
         },
         {
-            find: "#{intl::EXPRESSION_PICKER_GIF}",
+            find: "#{intl::EXPRESSION_PICKER_CATEGORIES_A11Y_LABEL}",
             replacement: {
-                match: /role:"tablist",.+?#{intl::EXPRESSION_PICKER_CATEGORIES_A11Y_LABEL},children:(\[.*?\)\]}\)}\):null,)(.*?closePopout:\w.*?:null)/s,
+                match: /role:"tablist",.*?,?"aria-label":.+?\),children:(\[.*?\)\]}\)}\):null,)(.*?closePopout:\w.*?:null)/s,
                 replace: m => {
-                    const stickerTabRegex = /(\w+?)\?(\([^()]+?\))\((.{1,2}),{.{0,128},isActive:(.{1,2})===.{1,150},children:(.{1,10}#{intl::EXPRESSION_PICKER_STICKER}).*?:null/s;
+                    const stickerTabRegex = /(\w+?)\?(\([^()]+?\))\((.{1,2}),{.{0,128},isActive:(.{1,2})===.{1,6}\.STICKER.{1,140},children:(.{1,5}\.string\(.+?\)).*?:null/s;
                     const res = m.replace(stickerTabRegex, (_m, canUseStickers, jsx, tabHeaderComp, currentTab, stickerText) => {
                         const isActive = `${currentTab}==="stickers+"`;
                         return (
@@ -87,7 +87,7 @@ export default definePlugin({
         {
             find: '==="remove_text"',
             replacement: {
-                match: /,\w\.insertText=\w=>{[\w ;]*?1===\w\.length&&.+?==="remove_text"/,
+                match: /,\i\.insertText=\i=>{[\w ;]*?1===\i\.length&&.+?==="remove_text"/,
                 replace: ",$self.textEditor=arguments[0]$&"
             }
         }
