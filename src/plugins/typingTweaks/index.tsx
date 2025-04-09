@@ -26,6 +26,8 @@ import { Avatar, GuildMemberStore, React, RelationshipStore } from "@webpack/com
 import { User } from "discord-types/general";
 import { PropsWithChildren } from "react";
 
+import managedStyle from "./style.css?managed";
+
 const settings = definePluginSettings({
     showAvatars: {
         type: OptionType.BOOLEAN,
@@ -60,31 +62,26 @@ interface Props {
 
 function typingUserColor(guildId: string, userId: string) {
     if (!settings.store.showRoleColors) return;
-    if (Settings.plugins.CustomUserColors.enabled) return getCustomColorString(userId, true);
-    return GuildMemberStore.getMember(guildId, userId)?.colorString;
+    const customColor = Settings.plugins.CustomUserColors.enabled ? getCustomColorString(userId, true) : null;
+    return customColor ?? GuildMemberStore.getMember(guildId, userId)?.colorString;
 }
 
 const TypingUser = ErrorBoundary.wrap(function ({ user, guildId }: Props) {
     return (
         <strong
+            className="vc-typing-user"
             role="button"
             onClick={() => {
                 openUserProfile(user.id);
             }}
             style={{
-                display: "grid",
-                gridAutoFlow: "column",
-                gap: "4px",
-                color: typingUserColor(guildId, user.id),
-                cursor: "pointer"
+                color: settings.store.showRoleColors ? GuildMemberStore.getMember(guildId, user.id)?.colorString : undefined,
             }}
         >
             {settings.store.showAvatars && (
-                <div style={{ marginTop: "4px" }}>
-                    <Avatar
-                        size="SIZE_16"
-                        src={user.getAvatarURL(guildId, 128)} />
-                </div>
+                <Avatar
+                    size="SIZE_16"
+                    src={user.getAvatarURL(guildId, 128)} />
             )}
             {GuildMemberStore.getNick(guildId!, user.id)
                 || (!guildId && RelationshipStore.getNickname(user.id))
@@ -101,6 +98,8 @@ export default definePlugin({
     authors: [Devs.zt],
     settings,
 
+    managedStyle,
+
     patches: [
         {
             find: "#{intl::THREE_USERS_TYPING}",
@@ -108,7 +107,7 @@ export default definePlugin({
                 {
                     // Style the indicator and add function call to modify the children before rendering
                     match: /(?<=children:\[(\i)\.length>0.{0,200}?"aria-atomic":!0,children:)\i(?<=guildId:(\i).+?)/,
-                    replace: "$self.renderTypingUsers({ users: $1, guildId: $2, children: $& }),style:$self.TYPING_TEXT_STYLE"
+                    replace: "$self.renderTypingUsers({ users: $1, guildId: $2, children: $& })"
                 },
                 {
                     // Changes the indicator to keep the user object when creating the list of typing users
@@ -124,12 +123,6 @@ export default definePlugin({
             ]
         }
     ],
-
-    TYPING_TEXT_STYLE: {
-        display: "grid",
-        gridAutoFlow: "column",
-        gridGap: "0.25em"
-    },
 
     buildSeveralUsers,
 

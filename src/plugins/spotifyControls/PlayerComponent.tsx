@@ -17,6 +17,7 @@
 */
 
 import "./spotifyStyles.css";
+import "./visualRefreshSpotifyStyles.css"; // TODO: merge with spotifyStyles.css and remove when old UI is discontinued
 
 import { Settings } from "@api/Settings";
 import { classNameFactory } from "@api/Styles";
@@ -190,6 +191,7 @@ function SeekBar() {
                 {msToHuman(position)}
             </Forms.FormText>
             <Menu.MenuSliderControl
+                key={position}
                 minValue={0}
                 maxValue={duration}
                 value={position}
@@ -307,8 +309,8 @@ function Info({ track }: { track: Track; }) {
                     {track.name}
                 </Forms.FormText>
                 {track.artists.some(a => a.name) && (
-                    <Forms.FormText variant="text-sm/normal" className={cl("ellipoverflow")}>
-                        by&nbsp;
+                    <Forms.FormText variant="text-sm/normal" className={cl(["ellipoverflow", "secondary-song-info"])}>
+                        <span className={cl("song-info-prefix")}>by&nbsp;</span>
                         {track.artists.map((a, i) => (
                             <React.Fragment key={a.name}>
                                 <span
@@ -325,8 +327,8 @@ function Info({ track }: { track: Track; }) {
                     </Forms.FormText>
                 )}
                 {track.album.name && (
-                    <Forms.FormText variant="text-sm/normal" className={cl("ellipoverflow")}>
-                        on&nbsp;
+                    <Forms.FormText variant="text-sm/normal" className={cl(["ellipoverflow", "secondary-song-info"])}>
+                        <span className={cl("song-info-prefix")}>on&nbsp;</span>
                         <span
                             id={cl("album-title")}
                             className={cl("album")}

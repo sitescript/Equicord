@@ -16,6 +16,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import "./sidebarFix.css";
+
 import { definePluginSettings } from "@api/Settings";
 import { Devs } from "@utils/constants";
 import { getIntlMessage } from "@utils/discord";
@@ -76,6 +78,11 @@ export const settings = definePluginSettings({
         description: "Close other folders when opening a folder",
         default: false
     },
+    closeServerFolder: {
+        type: OptionType.BOOLEAN,
+        description: "Close folder when selecting a server in that folder",
+        default: false,
+    },
     forceOpen: {
         type: OptionType.BOOLEAN,
         description: "Force a folder to open when switching to a server of that folder",
@@ -99,10 +106,14 @@ export const settings = definePluginSettings({
     }
 });
 
+const cssMade = false;
+
+const cssElementId = "VC-BetterFolders";
+
 export default definePlugin({
     name: "BetterFolders",
     description: "Shows server folders on dedicated sidebar and adds folder related improvements",
-    authors: [Devs.juby, Devs.AutumnVN, Devs.Nuckyz],
+    authors: [Devs.juby, Devs.AutumnVN, Devs.Nuckyz, Devs.sadan],
 
     settings,
 
@@ -193,17 +204,36 @@ export default definePlugin({
                     predicate: () => settings.store.showFolderIcon !== FolderIconDisplay.Always,
                     match: /(?<=\.expandedFolderBackground.+?}\),)(?=\i,)/,
                     replace: "!$self.shouldShowFolderIconAndBackground(!!arguments[0]?.isBetterFolders,arguments[0]?.betterFoldersExpandedIds)?null:"
+                },
+                {
+                    // Discord adds a slight bottom margin of 4px when it's expanded
+                    // Which looks off when there's nothing open in the folder
+                    predicate: () => !settings.store.keepIcons,
+                    match: /(?=className:.{0,50}folderIcon)/,
+                    replace: "style:arguments[0]?.isBetterFolders?{}:{marginBottom:0},"
                 }
             ]
         },
         {
             find: "APPLICATION_LIBRARY,render:",
             predicate: () => settings.store.sidebar,
-            replacement: {
-                // Render the Better Folders sidebar
-                match: /(container.{0,50}({className:\i\.guilds,themeOverride:\i})\))/,
-                replace: "$1,$self.FolderSideBar({...$2})"
-            }
+            group: true,
+            replacement: [
+                {
+                    // Render the Better Folders sidebar
+                    // Discord has two different places where they render the sidebar.
+                    // One is for visual refresh, one is not,
+                    // and each has a bunch of conditions &&ed in front of it.
+                    // Add the betterFolders sidebar to both, keeping the conditions Discord uses.
+                    match: /(?<=[[,])((?:!?\i&&)+)\(.{0,50}({className:\i\.guilds,themeOverride:\i})\)/g,
+                    replace: (m, conditions, props) => `${m},${conditions}$self.FolderSideBar(${props})`
+                },
+                {
+                    // Add grid styles to fix aligment with other visual refresh elements
+                    match: /(?<=className:)(\i\.base)(?=,)/,
+                    replace: "`${$self.gridStyle} ${$1}`"
+                }
+            ]
         },
         {
             find: "#{intl::DISCODO_DISABLED}",
@@ -218,7 +248,7 @@ export default definePlugin({
 
     flux: {
         CHANNEL_SELECT(data) {
-            if (!settings.store.closeAllFolders && !settings.store.forceOpen)
+            if (!settings.store.closeAllFolders && !settings.store.forceOpen && !settings.store.closeServerFolder)
                 return;
 
             if (lastGuildId !== data.guildId) {
@@ -227,6 +257,9 @@ export default definePlugin({
 
                 if (guildFolder?.folderId) {
                     if (settings.store.forceOpen && !ExpandedGuildFolderStore.isFolderExpanded(guildFolder.folderId)) {
+                        FolderUtils.toggleGuildFolderExpand(guildFolder.folderId);
+                    }
+                    if (settings.store.closeServerFolder && ExpandedGuildFolderStore.isFolderExpanded(guildFolder.folderId)) {
                         FolderUtils.toggleGuildFolderExpand(guildFolder.folderId);
                     }
                 } else if (settings.store.closeAllFolders) {
@@ -256,6 +289,8 @@ export default definePlugin({
             closeFolders();
         }
     },
+
+    gridStyle: "vc-betterFolders-sidebar-grid",
 
     getGuildTree(isBetterFolders: boolean, originalTree: any, expandedFolderIds?: Set<any>) {
         return useMemo(() => {

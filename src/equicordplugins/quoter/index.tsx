@@ -141,7 +141,7 @@ async function createQuoteImage(avatarUrl: string, quoteOld: string, grayScale: 
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             const avatarBlob = await fetchImageAsBlob(avatarUrl);
-            const fadeBlob = await fetchImageAsBlob("https://cdn.nest.rip/uploads/4ec258ab-9446-497a-a9ef-0c7c70661ca1.png");
+            const fadeBlob = await fetchImageAsBlob("https://github.com/Equicord/Equibored/raw/main/misc/quoter.png");
 
             const avatar = new Image();
             const fade = new Image();
@@ -195,10 +195,9 @@ function registerStyleChange(style) {
 }
 
 async function setIsUserCustomCapable() {
-    const allowList: string[] = await fetch("https://raw.githubusercontent.com/Equicord/Equibored/main/misc/quoterusers.json").then(e => e.json());
+    const allowList: string[] = await fetch("https://equicord.org/quoter").then(e => e.json()); // Override for memes - IF THIS IS ABUSED WILL WE TAKEN AWAY
     isUserCustomCapable = allowList.includes(UserStore.getCurrentUser().id);
 }
-
 
 function QuoteModal(props: ModalProps) {
     setIsUserCustomCapable();
@@ -225,7 +224,7 @@ function QuoteModal(props: ModalProps) {
                 <ModalCloseButton onClick={props.onClose} />
             </ModalHeader>
             <ModalContent scrollbarType="none">
-                <img src={""} id={"quoterPreview"} style={{ borderRadius: "20px", width: "100%" }}></img>
+                <img alt="" src="" id={"quoterPreview"} style={{ borderRadius: "20px", width: "100%" }}></img>
                 <br></br><br></br>
                 {isUserCustomCapable &&
                     (
